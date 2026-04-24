@@ -2,7 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { logout } from "../login/actions";
-import { deleteGame } from "./actions";
+import { deleteGame, copyGame } from "./actions";
 import { syncSubscriptionFromStripe, isPro, subStatusLabel } from "@/lib/subscription";
 import { isAdmin } from "@/lib/admin";
 import { listTeamsAndEnsureDefault, pickActiveTeam } from "@/lib/teams";
@@ -192,6 +192,16 @@ export default async function GamesPage({
                     : ""}
                 </div>
               </Link>
+              <form action={copyGame}>
+                <input type="hidden" name="id" value={g.id} />
+                <button
+                  className="text-stone-400 hover:text-blue-600 text-sm px-2"
+                  title="Duplicate this game (same lineup + roster, today's date)"
+                  type="submit"
+                >
+                  ⧉
+                </button>
+              </form>
               <form action={deleteGame}>
                 <input type="hidden" name="id" value={g.id} />
                 <button

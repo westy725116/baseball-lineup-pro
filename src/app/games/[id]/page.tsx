@@ -4,7 +4,9 @@ import { notFound, redirect } from "next/navigation";
 import { headers } from "next/headers";
 import LineupBuilder from "@/components/LineupBuilder";
 import SharePanel from "@/components/SharePanel";
+import EditGameInfo from "@/components/EditGameInfo";
 import { getSubscription, isPro, FREE_INNINGS } from "@/lib/subscription";
+import { listTeamsAndEnsureDefault } from "@/lib/teams";
 import { deleteComment } from "./share-actions";
 
 export const dynamic = "force-dynamic";
@@ -31,6 +33,7 @@ export default async function GameDetailPage({
 
   const sub = await getSubscription();
   const pro = isPro(sub);
+  const teams = await listTeamsAndEnsureDefault();
 
   // Fetch comments (RLS only returns them for the owner)
   const { data: comments } = await supabase
@@ -70,7 +73,22 @@ export default async function GameDetailPage({
               {game.location ? ` • ${game.location}` : ""}
             </div>
           </div>
-          <div>
+          <div className="flex flex-wrap gap-2">
+            <EditGameInfo
+              game={{
+                id: game.id,
+                home_team: game.home_team,
+                away_team: game.away_team,
+                location: game.location ?? null,
+                game_date: game.game_date,
+                team_id: game.team_id ?? null,
+              }}
+              teams={teams.map((t) => ({
+                id: t.id,
+                name: t.name,
+                season_year: t.season_year,
+              }))}
+            />
             <SharePanel
               gameId={game.id}
               shareToken={game.share_token ?? null}
