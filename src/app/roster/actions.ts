@@ -13,7 +13,7 @@ export async function addTeamPlayer(formData: FormData) {
 
   const name = (formData.get("name") as string)?.trim();
   const jersey = ((formData.get("jersey_number") as string) || "").trim();
-  if (!name) return;
+  if (!name) return null;
 
   // Place new player at the end of the manual sort order
   const { data: max } = await supabase
@@ -25,13 +25,19 @@ export async function addTeamPlayer(formData: FormData) {
     .maybeSingle();
   const nextOrder = ((max?.sort_order as number | undefined) ?? 0) + 10;
 
-  await supabase.from("team_players").insert({
-    user_id: user.id,
-    name,
-    jersey_number: jersey || null,
-    sort_order: nextOrder,
-  });
+  const { data: inserted } = await supabase
+    .from("team_players")
+    .insert({
+      user_id: user.id,
+      name,
+      jersey_number: jersey || null,
+      sort_order: nextOrder,
+    })
+    .select("id, name, jersey_number")
+    .single();
+
   revalidatePath("/roster");
+  return inserted;
 }
 
 export async function reorderTeamPlayers(orderedIds: string[]) {

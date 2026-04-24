@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { addTeamPlayer } from "./actions";
 import RosterList from "./RosterList";
 
 export const dynamic = "force-dynamic";
@@ -45,60 +44,15 @@ export default async function RosterPage() {
         </div>
       )}
 
-      <section className="bg-white border border-stone-200 rounded-lg p-5 mb-4">
-        <h2 className="font-semibold text-sm mb-3 text-stone-700">
-          Add player
-        </h2>
-        <form
-          action={addTeamPlayer}
-          className="grid grid-cols-1 sm:grid-cols-[1fr_100px_auto] gap-2"
-        >
-          <input
-            name="name"
-            type="text"
-            required
-            placeholder="Player name"
-            maxLength={60}
-            className="px-3 py-2 border border-stone-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-          <input
-            name="jersey_number"
-            type="text"
-            placeholder="#"
-            maxLength={6}
-            className="px-3 py-2 border border-stone-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-          <button
-            type="submit"
-            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm rounded"
-          >
-            Add
-          </button>
-        </form>
-      </section>
-
-      {players && players.length > 0 ? (
-        <>
-          <p className="text-xs text-stone-500 mb-2 px-1">
-            Drag the ⋮⋮ handle to reorder.
-          </p>
-          <RosterList
-            initial={players.map((p) => ({
-              id: p.id,
-              name: p.name,
-              jersey_number: p.jersey_number,
-            }))}
-          />
-        </>
-      ) : !error ? (
-        <div className="bg-white border border-dashed border-stone-300 rounded-lg p-8 text-center text-stone-500">
-          <p className="mb-1">No players yet.</p>
-          <p className="text-xs">
-            Add your team above. Then in any game, click{" "}
-            <strong>Load roster</strong> to drop them all in.
-          </p>
-        </div>
-      ) : null}
+      {!error && (
+        <RosterList
+          initial={(players ?? []).map((p) => ({
+            id: p.id,
+            name: p.name,
+            jersey_number: p.jersey_number,
+          }))}
+        />
+      )}
     </div>
   );
 }
