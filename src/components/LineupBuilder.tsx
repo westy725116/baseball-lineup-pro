@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import {
   POSITIONS,
-  NUM_INNINGS,
+  MAX_INNINGS,
   type LineupData,
   defaultLineupData,
   normalize,
@@ -78,7 +78,7 @@ export default function LineupBuilder({ gameId, initialData }: Props) {
 
   const removePlayer = (id: string) => {
     const lineups: typeof data.lineups = {};
-    for (let i = 1; i <= NUM_INNINGS; i++) {
+    for (let i = 1; i <= MAX_INNINGS; i++) {
       const inn = { ...data.lineups[i] };
       for (const pos in inn) if (inn[pos] === id) delete inn[pos];
       lineups[i] = inn;
@@ -277,7 +277,7 @@ export default function LineupBuilder({ gameId, initialData }: Props) {
             <div className={styles.fieldHeader}>
               <h2>Defensive Lineup</h2>
               <div className={styles.inningTabs}>
-                {Array.from({ length: NUM_INNINGS }, (_, k) => k + 1).map((i) => {
+                {Array.from({ length: data.numInnings }, (_, k) => k + 1).map((i) => {
                   const filledCount = Object.values(data.lineups[i] || {}).filter(
                     Boolean
                   ).length;
@@ -293,6 +293,22 @@ export default function LineupBuilder({ gameId, initialData }: Props) {
                     </button>
                   );
                 })}
+                {data.numInnings < MAX_INNINGS && (
+                  <button
+                    className={styles.inningTab}
+                    onClick={() =>
+                      setData({ ...data, numInnings: data.numInnings + 1 })
+                    }
+                    title="Add another inning"
+                    style={{
+                      borderStyle: "dashed",
+                      color: "#9ca3af",
+                      fontWeight: 400,
+                    }}
+                  >
+                    +
+                  </button>
+                )}
               </div>
               <div className={styles.inningActions}>
                 <button
@@ -510,7 +526,7 @@ function SummaryTable({ data }: { data: LineupData }) {
         <tr>
           <th className={styles.summaryPlayer}>Player</th>
           <th>Innings</th>
-          {Array.from({ length: NUM_INNINGS }, (_, k) => k + 1).map((i) => (
+          {Array.from({ length: data.numInnings }, (_, k) => k + 1).map((i) => (
             <th key={i}>{i}</th>
           ))}
         </tr>
@@ -518,7 +534,7 @@ function SummaryTable({ data }: { data: LineupData }) {
       <tbody>
         {data.players.map((p) => {
           const positionsByInning = Array.from(
-            { length: NUM_INNINGS },
+            { length: data.numInnings },
             (_, k) => positionInInning(data, p.id, k + 1)
           );
           const playedCount = positionsByInning.filter(Boolean).length;
@@ -526,7 +542,7 @@ function SummaryTable({ data }: { data: LineupData }) {
             <tr key={p.id}>
               <td className={styles.summaryPlayer}>{p.name}</td>
               <td className={styles.summaryCount}>
-                {playedCount}/{NUM_INNINGS}
+                {playedCount}/{data.numInnings}
               </td>
               {positionsByInning.map((pos, i) => (
                 <td
@@ -560,7 +576,7 @@ function positionInInning(
 function PrintInnings({ data }: { data: LineupData }) {
   return (
     <div className={`${styles.printOnly} ${styles.printInnings}`}>
-      {Array.from({ length: NUM_INNINGS }, (_, k) => k + 1).map((i) => {
+      {Array.from({ length: data.numInnings }, (_, k) => k + 1).map((i) => {
         const lineup = data.lineups[i] || {};
         return (
           <div key={i} className={styles.printInningCard}>

@@ -19,7 +19,8 @@ export const POSITIONS: Position[] = [
   { id: "RF", label: "Right Field", x: 78, y: 30 },
 ];
 
-export const NUM_INNINGS = 6;
+export const DEFAULT_INNINGS = 6;
+export const MAX_INNINGS = 9;
 export const DEFAULT_BATTING_SLOTS = 12;
 
 export type Player = { id: string; name: string };
@@ -29,11 +30,12 @@ export type LineupData = {
   lineups: Record<number, InningLineup>;
   battingOrder: (string | null)[];
   currentInning: number;
+  numInnings: number; // how many innings this game uses (6..9)
 };
 
 export function emptyLineups(): Record<number, InningLineup> {
   const o: Record<number, InningLineup> = {};
-  for (let i = 1; i <= NUM_INNINGS; i++) o[i] = {};
+  for (let i = 1; i <= MAX_INNINGS; i++) o[i] = {};
   return o;
 }
 
@@ -43,6 +45,7 @@ export function defaultLineupData(): LineupData {
     lineups: emptyLineups(),
     battingOrder: new Array(DEFAULT_BATTING_SLOTS).fill(null),
     currentInning: 1,
+    numInnings: DEFAULT_INNINGS,
   };
 }
 
@@ -62,7 +65,7 @@ export function normalize(raw: unknown): LineupData {
   }
 
   if (data.lineups && typeof data.lineups === "object") {
-    for (let i = 1; i <= NUM_INNINGS; i++) {
+    for (let i = 1; i <= MAX_INNINGS; i++) {
       const inning = (data.lineups as Record<number, InningLineup>)[i];
       if (inning && typeof inning === "object") {
         d.lineups[i] = { ...inning };
@@ -82,7 +85,20 @@ export function normalize(raw: unknown): LineupData {
     }
   }
 
-  if (typeof data.currentInning === "number" && data.currentInning >= 1 && data.currentInning <= NUM_INNINGS) {
+  // numInnings (defaults to 6 for legacy data)
+  if (
+    typeof data.numInnings === "number" &&
+    data.numInnings >= DEFAULT_INNINGS &&
+    data.numInnings <= MAX_INNINGS
+  ) {
+    d.numInnings = data.numInnings;
+  }
+
+  if (
+    typeof data.currentInning === "number" &&
+    data.currentInning >= 1 &&
+    data.currentInning <= d.numInnings
+  ) {
     d.currentInning = data.currentInning;
   }
 
