@@ -30,8 +30,11 @@ create table if not exists team_players (
   created_at timestamptz default now()
 );
 
+-- Manual sort order on the /roster page (drag-and-drop reordering).
+alter table team_players add column if not exists sort_order int default 0;
+
 create index if not exists team_players_user_id_idx
-  on team_players (user_id, name);
+  on team_players (user_id, sort_order, name);
 
 alter table team_players enable row level security;
 

@@ -1,11 +1,8 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import {
-  addTeamPlayer,
-  deleteTeamPlayer,
-  updateTeamPlayer,
-} from "./actions";
+import { addTeamPlayer } from "./actions";
+import RosterList from "./RosterList";
 
 export const dynamic = "force-dynamic";
 
@@ -18,7 +15,8 @@ export default async function RosterPage() {
 
   const { data: players, error } = await supabase
     .from("team_players")
-    .select("*")
+    .select("id, name, jersey_number, sort_order")
+    .order("sort_order", { ascending: true })
     .order("name", { ascending: true });
 
   return (
@@ -80,54 +78,18 @@ export default async function RosterPage() {
       </section>
 
       {players && players.length > 0 ? (
-        <ul className="space-y-2">
-          {players.map((p) => (
-            <li
-              key={p.id}
-              className="bg-white border border-stone-200 rounded-lg p-3 flex items-center gap-3"
-            >
-              <form
-                action={updateTeamPlayer}
-                className="flex-1 flex items-center gap-2"
-              >
-                <input type="hidden" name="id" value={p.id} />
-                {p.jersey_number && (
-                  <span className="text-xs font-bold text-stone-500 w-8 text-center">
-                    #{p.jersey_number}
-                  </span>
-                )}
-                <input
-                  name="name"
-                  defaultValue={p.name}
-                  className="flex-1 px-2 py-1 border border-transparent hover:border-stone-300 focus:border-blue-500 rounded text-sm focus:outline-none"
-                />
-                <input
-                  name="jersey_number"
-                  defaultValue={p.jersey_number ?? ""}
-                  placeholder="#"
-                  className="w-16 px-2 py-1 border border-transparent hover:border-stone-300 focus:border-blue-500 rounded text-sm focus:outline-none"
-                />
-                <button
-                  type="submit"
-                  className="text-xs text-blue-600 hover:text-blue-800 px-2"
-                  title="Save changes"
-                >
-                  Save
-                </button>
-              </form>
-              <form action={deleteTeamPlayer}>
-                <input type="hidden" name="id" value={p.id} />
-                <button
-                  type="submit"
-                  className="text-stone-400 hover:text-red-600 text-lg px-2"
-                  title="Remove from team"
-                >
-                  ×
-                </button>
-              </form>
-            </li>
-          ))}
-        </ul>
+        <>
+          <p className="text-xs text-stone-500 mb-2 px-1">
+            Drag the ⋮⋮ handle to reorder.
+          </p>
+          <RosterList
+            initial={players.map((p) => ({
+              id: p.id,
+              name: p.name,
+              jersey_number: p.jersey_number,
+            }))}
+          />
+        </>
       ) : !error ? (
         <div className="bg-white border border-dashed border-stone-300 rounded-lg p-8 text-center text-stone-500">
           <p className="mb-1">No players yet.</p>
