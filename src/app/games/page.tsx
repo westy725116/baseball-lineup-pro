@@ -3,7 +3,9 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { logout } from "../login/actions";
 import { deleteGame } from "./actions";
-import { getSubscription, isPro, subStatusLabel } from "@/lib/subscription";
+import { syncSubscriptionFromStripe, isPro, subStatusLabel } from "@/lib/subscription";
+
+export const dynamic = "force-dynamic";
 
 export default async function GamesPage() {
   const supabase = await createClient();
@@ -17,7 +19,7 @@ export default async function GamesPage() {
     .select("*")
     .order("game_date", { ascending: false });
 
-  const sub = await getSubscription();
+  const sub = await syncSubscriptionFromStripe();
   const pro = isPro(sub);
   const statusLabel = subStatusLabel(sub);
 

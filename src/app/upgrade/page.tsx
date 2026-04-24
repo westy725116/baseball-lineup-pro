@@ -4,6 +4,8 @@ import { createClient } from "@/lib/supabase/server";
 import { syncSubscriptionFromStripe, isPro } from "@/lib/subscription";
 import { startCheckout, openCustomerPortal } from "./actions";
 
+export const dynamic = "force-dynamic";
+
 type SearchParams = Promise<{ canceled?: string; error?: string }>;
 
 export default async function UpgradePage({
