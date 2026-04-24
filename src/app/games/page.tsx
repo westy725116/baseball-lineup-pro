@@ -53,6 +53,27 @@ export default async function GamesPage() {
         </div>
       </header>
 
+      <nav className="flex items-center gap-1 mb-4 text-sm">
+        <Link
+          href="/games"
+          className="px-3 py-1.5 bg-stone-900 text-white rounded font-medium"
+        >
+          Games
+        </Link>
+        <Link
+          href="/roster"
+          className="px-3 py-1.5 text-stone-700 hover:bg-stone-100 rounded font-medium"
+        >
+          Team Roster
+        </Link>
+        <Link
+          href="/players"
+          className="px-3 py-1.5 text-stone-700 hover:bg-stone-100 rounded font-medium"
+        >
+          Player History
+        </Link>
+      </nav>
+
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-lg font-semibold">Games</h2>
         <Link

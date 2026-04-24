@@ -23,7 +23,11 @@ export const DEFAULT_INNINGS = 6;
 export const MAX_INNINGS = 9;
 export const DEFAULT_BATTING_SLOTS = 12;
 
-export type Player = { id: string; name: string };
+export type Player = {
+  id: string;
+  name: string;
+  team_player_id?: string; // links a game's player to the user's reusable roster
+};
 export type InningLineup = Record<string, string>; // positionId -> playerId
 export type LineupData = {
   players: Player[];
@@ -65,10 +69,21 @@ export function normalize(raw: unknown): LineupData {
   };
 
   if (Array.isArray(data.players)) {
-    d.players = data.players.filter(
-      (p): p is Player =>
-        !!p && typeof p === "object" && typeof p.id === "string" && typeof p.name === "string"
-    );
+    d.players = data.players
+      .filter(
+        (p): p is Player =>
+          !!p &&
+          typeof p === "object" &&
+          typeof p.id === "string" &&
+          typeof p.name === "string"
+      )
+      .map((p) => ({
+        id: p.id,
+        name: p.name,
+        ...(typeof p.team_player_id === "string"
+          ? { team_player_id: p.team_player_id }
+          : {}),
+      }));
   }
 
   if (data.lineups && typeof data.lineups === "object") {

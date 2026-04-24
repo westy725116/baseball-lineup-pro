@@ -37,6 +37,7 @@ export default function LineupBuilder({
   const [dragOverPos, setDragOverPos] = useState<string | null>(null);
   const [dragOverBat, setDragOverBat] = useState<number | null>(null);
   const [dragOverPitch, setDragOverPitch] = useState<number | null>(null);
+  const [rosterMsg, setRosterMsg] = useState<string | null>(null);
 
   const supabase = useRef(createClient()).current;
   const isFirstRender = useRef(true);
@@ -187,6 +188,94 @@ export default function LineupBuilder({
   const addBattingSlot = () =>
     setData({ ...data, battingOrder: [...data.battingOrder, null] });
 
+  // Load all team_players the user has saved into the current game's roster.
+  // Skips any already present (matched by team_player_id, then by name).
+  const loadFromTeamRoster = async () => {
+    setRosterMsg("Loading…");
+    const { data: tp, error } = await supabase
+      .from("team_players")
+      .select("id, name")
+      .order("name");
+    if (error) {
+      setRosterMsg("Failed to load.");
+      return;
+    }
+    if (!tp || tp.length === 0) {
+      setRosterMsg("No team roster yet — add players in /roster.");
+      return;
+    }
+    const existingByTpId = new Set(
+      data.players.map((p) => p.team_player_id).filter(Boolean) as string[]
+    );
+    const existingByName = new Set(
+      data.players.map((p) => p.name.trim().toLowerCase())
+    );
+    const toAdd = tp
+      .filter(
+        (t) =>
+          !existingByTpId.has(t.id) &&
+          !existingByName.has(t.name.trim().toLowerCase())
+      )
+      .map((t) => ({ id: uid(), name: t.name, team_player_id: t.id }));
+    if (toAdd.length === 0) {
+      setRosterMsg("Roster already loaded.");
+      return;
+    }
+    setData({ ...data, players: [...data.players, ...toAdd] });
+    setRosterMsg(`Added ${toAdd.length} player${toAdd.length === 1 ? "" : "s"}.`);
+    setTimeout(() => setRosterMsg(null), 3000);
+  };
+
+  // Push any roster players that aren't yet linked to a team_player into team_players.
+  const saveRosterToTeam = async () => {
+    const candidates = data.players.filter((p) => !p.team_player_id);
+    if (candidates.length === 0) {
+      setRosterMsg("All players are already saved to your team.");
+      setTimeout(() => setRosterMsg(null), 3000);
+      return;
+    }
+    setRosterMsg("Saving…");
+    // Look up existing team_players by name to avoid duplicates
+    const { data: existingTp } = await supabase
+      .from("team_players")
+      .select("id, name");
+    const existingByName = new Map<string, string>();
+    (existingTp ?? []).forEach((tp) =>
+      existingByName.set(tp.name.trim().toLowerCase(), tp.id)
+    );
+
+    const newPlayers = data.players.slice();
+    let added = 0;
+    let linked = 0;
+
+    for (let i = 0; i < newPlayers.length; i++) {
+      const p = newPlayers[i];
+      if (p.team_player_id) continue;
+      const key = p.name.trim().toLowerCase();
+      if (existingByName.has(key)) {
+        newPlayers[i] = { ...p, team_player_id: existingByName.get(key)! };
+        linked++;
+        continue;
+      }
+      const { data: inserted, error } = await supabase
+        .from("team_players")
+        .insert({ name: p.name })
+        .select("id")
+        .single();
+      if (!error && inserted) {
+        newPlayers[i] = { ...p, team_player_id: inserted.id };
+        added++;
+      }
+    }
+
+    setData({ ...data, players: newPlayers });
+    const parts: string[] = [];
+    if (added) parts.push(`saved ${added} new`);
+    if (linked) parts.push(`linked ${linked} existing`);
+    setRosterMsg(parts.length ? parts.join(", ") + "." : "Done.");
+    setTimeout(() => setRosterMsg(null), 3000);
+  };
+
   const autoFillBattingOrder = () => {
     const lineup = currentLineup();
     const fielded = POSITIONS.map((p) => lineup[p.id]).filter(Boolean) as string[];
@@ -258,6 +347,29 @@ export default function LineupBuilder({
                 {data.players.length ? `(${data.players.length})` : ""}
               </span>
             </h2>
+            <div className="flex gap-1.5 mb-2">
+              <button
+                type="button"
+                onClick={loadFromTeamRoster}
+                className="flex-1 text-[11px] font-semibold border border-stone-300 bg-white hover:bg-stone-50 rounded px-2 py-1"
+                title="Pull players from your saved team roster"
+              >
+                ↓ Load roster
+              </button>
+              <button
+                type="button"
+                onClick={saveRosterToTeam}
+                className="flex-1 text-[11px] font-semibold border border-stone-300 bg-white hover:bg-stone-50 rounded px-2 py-1"
+                title="Save these players to your team roster"
+              >
+                ↑ Save to team
+              </button>
+            </div>
+            {rosterMsg && (
+              <div className="text-[11px] text-stone-500 mb-2 px-1">
+                {rosterMsg}
+              </div>
+            )}
             <form onSubmit={addPlayer} className={styles.rosterInput}>
               <input
                 type="text"

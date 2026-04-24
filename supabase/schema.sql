@@ -20,6 +20,28 @@ create table if not exists games (
 alter table games add column if not exists lineup_data jsonb default '{}'::jsonb;
 
 -- ============================================================
+-- Team players (reusable roster)
+-- ============================================================
+create table if not exists team_players (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users(id) on delete cascade,
+  name text not null,
+  jersey_number text,
+  created_at timestamptz default now()
+);
+
+create index if not exists team_players_user_id_idx
+  on team_players (user_id, name);
+
+alter table team_players enable row level security;
+
+drop policy if exists "Users manage their own team players" on team_players;
+create policy "Users manage their own team players"
+  on team_players for all
+  using (auth.uid() = user_id)
+  with check (auth.uid() = user_id);
+
+-- ============================================================
 -- Subscriptions (Stripe)
 -- ============================================================
 create table if not exists subscriptions (
