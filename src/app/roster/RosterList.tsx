@@ -14,7 +14,13 @@ type Player = {
   jersey_number: string | null;
 };
 
-export default function RosterList({ initial }: { initial: Player[] }) {
+export default function RosterList({
+  initial,
+  teamId,
+}: {
+  initial: Player[];
+  teamId: string;
+}) {
   const [players, setPlayers] = useState<Player[]>(initial);
   const [dragId, setDragId] = useState<string | null>(null);
   const [dragOverId, setDragOverId] = useState<string | null>(null);
@@ -40,6 +46,7 @@ export default function RosterList({ initial }: { initial: Player[] }) {
     const fd = new FormData();
     fd.set("name", trimmedName);
     fd.set("jersey_number", jersey.trim());
+    fd.set("team_id", teamId);
     const res = await addTeamPlayer(fd);
     setName("");
     setJersey("");

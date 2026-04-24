@@ -13,22 +13,32 @@ export async function addTeamPlayer(formData: FormData) {
 
   const name = (formData.get("name") as string)?.trim();
   const jersey = ((formData.get("jersey_number") as string) || "").trim();
+  const teamId = (formData.get("team_id") as string)?.trim() || null;
   if (!name) return null;
 
-  // Place new player at the end of the manual sort order
-  const { data: max } = await supabase
-    .from("team_players")
-    .select("sort_order")
-    .eq("user_id", user.id)
-    .order("sort_order", { ascending: false })
-    .limit(1)
-    .maybeSingle();
-  const nextOrder = ((max?.sort_order as number | undefined) ?? 0) + 10;
+  // Place new player at the end of the manual sort order *within this team*
+  const max = teamId
+    ? await supabase
+        .from("team_players")
+        .select("sort_order")
+        .eq("team_id", teamId)
+        .order("sort_order", { ascending: false })
+        .limit(1)
+        .maybeSingle()
+    : await supabase
+        .from("team_players")
+        .select("sort_order")
+        .eq("user_id", user.id)
+        .order("sort_order", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+  const nextOrder = ((max.data?.sort_order as number | undefined) ?? 0) + 10;
 
   const { data: inserted } = await supabase
     .from("team_players")
     .insert({
       user_id: user.id,
+      team_id: teamId,
       name,
       jersey_number: jersey || null,
       sort_order: nextOrder,

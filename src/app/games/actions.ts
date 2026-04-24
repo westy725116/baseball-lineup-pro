@@ -11,8 +11,10 @@ export async function createGame(formData: FormData) {
   } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
+  const teamId = (formData.get("team_id") as string)?.trim() || null;
   const game = {
     user_id: user.id,
+    team_id: teamId,
     home_team: (formData.get("home_team") as string)?.trim(),
     away_team: (formData.get("away_team") as string)?.trim(),
     location: ((formData.get("location") as string) || "").trim() || null,

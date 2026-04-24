@@ -18,6 +18,7 @@ type Props = {
   initialData: unknown;
   isPro: boolean;
   freeInnings: number;
+  teamId: string | null;
 };
 
 type SaveStatus = "idle" | "saving" | "saved" | "error";
@@ -27,6 +28,7 @@ export default function LineupBuilder({
   initialData,
   isPro,
   freeInnings,
+  teamId,
 }: Props) {
   const visibleInningCap = isPro ? MAX_INNINGS : freeInnings;
   const [data, setData] = useState<LineupData>(() =>
@@ -192,10 +194,14 @@ export default function LineupBuilder({
   // Skips any already present (matched by team_player_id, then by name).
   const loadFromTeamRoster = async () => {
     setRosterMsg("Loading…");
-    const { data: tp, error } = await supabase
+    const baseQuery = supabase
       .from("team_players")
       .select("id, name")
+      .order("sort_order")
       .order("name");
+    const { data: tp, error } = teamId
+      ? await baseQuery.eq("team_id", teamId)
+      : await baseQuery;
     if (error) {
       setRosterMsg("Failed to load.");
       return;
@@ -228,6 +234,11 @@ export default function LineupBuilder({
 
   // Push any roster players that aren't yet linked to a team_player into team_players.
   const saveRosterToTeam = async () => {
+    if (!teamId) {
+      setRosterMsg("This game isn't linked to a team yet.");
+      setTimeout(() => setRosterMsg(null), 3000);
+      return;
+    }
     const candidates = data.players.filter((p) => !p.team_player_id);
     if (candidates.length === 0) {
       setRosterMsg("All players are already saved to your team.");
@@ -235,10 +246,11 @@ export default function LineupBuilder({
       return;
     }
     setRosterMsg("Saving…");
-    // Look up existing team_players by name to avoid duplicates
+    // Look up existing team_players (in this team) by name to avoid duplicates
     const { data: existingTp } = await supabase
       .from("team_players")
-      .select("id, name");
+      .select("id, name")
+      .eq("team_id", teamId);
     const existingByName = new Map<string, string>();
     (existingTp ?? []).forEach((tp) =>
       existingByName.set(tp.name.trim().toLowerCase(), tp.id)
@@ -259,7 +271,7 @@ export default function LineupBuilder({
       }
       const { data: inserted, error } = await supabase
         .from("team_players")
-        .insert({ name: p.name })
+        .insert({ name: p.name, team_id: teamId })
         .select("id")
         .single();
       if (!error && inserted) {

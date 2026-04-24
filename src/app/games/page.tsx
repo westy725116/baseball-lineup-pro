@@ -5,20 +5,36 @@ import { logout } from "../login/actions";
 import { deleteGame } from "./actions";
 import { syncSubscriptionFromStripe, isPro, subStatusLabel } from "@/lib/subscription";
 import { isAdmin } from "@/lib/admin";
+import { listTeamsAndEnsureDefault, pickActiveTeam } from "@/lib/teams";
+
+type SearchParams = Promise<{ team?: string }>;
 
 export const dynamic = "force-dynamic";
 
-export default async function GamesPage() {
+export default async function GamesPage({
+  searchParams,
+}: {
+  searchParams: SearchParams;
+}) {
+  const { team: requestedTeamId } = await searchParams;
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  const { data: games, error } = await supabase
+  const teams = await listTeamsAndEnsureDefault();
+  // "all" means no filter; otherwise an actual team_id
+  const filterAll = requestedTeamId === "all";
+  const active = filterAll ? null : pickActiveTeam(teams, requestedTeamId);
+
+  const gameQuery = supabase
     .from("games")
     .select("*")
     .order("game_date", { ascending: false });
+  const { data: games, error } = active
+    ? await gameQuery.eq("team_id", active.id)
+    : await gameQuery;
 
   const sub = await syncSubscriptionFromStripe();
   const pro = isPro(sub);
@@ -72,23 +88,69 @@ export default async function GamesPage() {
           Games
         </Link>
         <Link
-          href="/roster"
+          href="/teams"
           className="px-3 py-1.5 text-stone-700 hover:bg-stone-100 rounded font-medium"
         >
-          Team Roster
+          Teams
         </Link>
         <Link
-          href="/players"
+          href={active ? `/roster?team=${active.id}` : "/roster"}
+          className="px-3 py-1.5 text-stone-700 hover:bg-stone-100 rounded font-medium"
+        >
+          Roster
+        </Link>
+        <Link
+          href={active ? `/players?team=${active.id}` : "/players"}
           className="px-3 py-1.5 text-stone-700 hover:bg-stone-100 rounded font-medium"
         >
           Player History
         </Link>
       </nav>
 
+      {teams.length > 1 && (
+        <div className="flex items-center gap-2 mb-3 text-sm flex-wrap">
+          <span className="text-stone-500">Team:</span>
+          <Link
+            href="/games?team=all"
+            className={`px-3 py-1 rounded font-medium ${
+              filterAll
+                ? "bg-stone-900 text-white"
+                : "bg-white border border-stone-300 text-stone-700 hover:bg-stone-50"
+            }`}
+          >
+            All
+          </Link>
+          {teams.map((t) => (
+            <Link
+              key={t.id}
+              href={`/games?team=${t.id}`}
+              className={`px-3 py-1 rounded font-medium ${
+                t.id === active?.id
+                  ? "bg-stone-900 text-white"
+                  : "bg-white border border-stone-300 text-stone-700 hover:bg-stone-50"
+              }`}
+            >
+              {t.name}
+              {t.season_year ? (
+                <span className="ml-1 text-xs opacity-70">{t.season_year}</span>
+              ) : null}
+            </Link>
+          ))}
+        </div>
+      )}
+
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-semibold">Games</h2>
+        <h2 className="text-lg font-semibold">
+          Games{" "}
+          {active && (
+            <span className="text-stone-500 font-normal text-base">
+              · {active.name}
+              {active.season_year ? ` ${active.season_year}` : ""}
+            </span>
+          )}
+        </h2>
         <Link
-          href="/games/new"
+          href={active ? `/games/new?team=${active.id}` : "/games/new"}
           className="px-3 py-1.5 text-sm bg-blue-600 hover:bg-blue-700 text-white rounded font-medium"
         >
           + New Game

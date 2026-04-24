@@ -20,7 +20,30 @@ create table if not exists games (
 alter table games add column if not exists lineup_data jsonb default '{}'::jsonb;
 
 -- ============================================================
--- Team players (reusable roster)
+-- Teams (a coach can have multiple teams; usually grouped by season)
+-- ============================================================
+create table if not exists teams (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users(id) on delete cascade,
+  name text not null,
+  season_year int,
+  sort_order int default 0,
+  created_at timestamptz default now()
+);
+
+create index if not exists teams_user_id_idx
+  on teams (user_id, sort_order, season_year desc, name);
+
+alter table teams enable row level security;
+
+drop policy if exists "Users manage their own teams" on teams;
+create policy "Users manage their own teams"
+  on teams for all
+  using (auth.uid() = user_id)
+  with check (auth.uid() = user_id);
+
+-- ============================================================
+-- Team players (reusable roster, scoped to a team)
 -- ============================================================
 create table if not exists team_players (
   id uuid primary key default gen_random_uuid(),
@@ -33,6 +56,12 @@ create table if not exists team_players (
 -- Manual sort order on the /roster page (drag-and-drop reordering).
 alter table team_players add column if not exists sort_order int default 0;
 
+-- Tie players to a specific team (nullable for legacy rows; auto-migrated on first visit).
+alter table team_players add column if not exists team_id uuid references teams(id) on delete cascade;
+
+create index if not exists team_players_team_id_idx
+  on team_players (team_id, sort_order, name);
+
 create index if not exists team_players_user_id_idx
   on team_players (user_id, sort_order, name);
 
@@ -43,6 +72,11 @@ create policy "Users manage their own team players"
   on team_players for all
   using (auth.uid() = user_id)
   with check (auth.uid() = user_id);
+
+-- Tie games to a specific team too (nullable for legacy rows; auto-migrated).
+alter table games add column if not exists team_id uuid references teams(id) on delete set null;
+
+create index if not exists games_team_id_idx on games (team_id, game_date desc);
 
 -- ============================================================
 -- Subscriptions (Stripe)

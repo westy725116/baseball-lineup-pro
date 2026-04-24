@@ -86,6 +86,7 @@ export default async function GameDetailPage({
         initialData={game.lineup_data}
         isPro={pro}
         freeInnings={FREE_INNINGS}
+        teamId={game.team_id ?? null}
       />
     </div>
   );

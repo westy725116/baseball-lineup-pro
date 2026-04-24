@@ -1,14 +1,31 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
+import { createClient } from "@/lib/supabase/server";
+import { listTeamsAndEnsureDefault, pickActiveTeam } from "@/lib/teams";
 import { createGame } from "../actions";
 
-type SearchParams = Promise<{ error?: string }>;
+export const dynamic = "force-dynamic";
+
+type SearchParams = Promise<{ error?: string; team?: string }>;
 
 export default async function NewGamePage({
   searchParams,
 }: {
   searchParams: SearchParams;
 }) {
-  const { error } = await searchParams;
+  const { error, team: requestedTeamId } = await searchParams;
+
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) redirect("/login");
+
+  const teams = await listTeamsAndEnsureDefault();
+  if (teams.length === 0) {
+    redirect("/teams");
+  }
+  const active = pickActiveTeam(teams, requestedTeamId);
   const today = new Date().toISOString().slice(0, 10);
 
   return (
@@ -33,6 +50,24 @@ export default async function NewGamePage({
         action={createGame}
         className="bg-white p-5 rounded-lg shadow-sm border border-stone-200 space-y-4"
       >
+        <div>
+          <label className="block text-xs font-semibold text-stone-600 mb-1">
+            Team
+          </label>
+          <select
+            name="team_id"
+            required
+            defaultValue={active?.id}
+            className="w-full px-3 py-2 border border-stone-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+          >
+            {teams.map((t) => (
+              <option key={t.id} value={t.id}>
+                {t.name}
+                {t.season_year ? ` (${t.season_year})` : ""}
+              </option>
+            ))}
+          </select>
+        </div>
         <div>
           <label className="block text-xs font-semibold text-stone-600 mb-1">
             Home team
