@@ -78,6 +78,52 @@ alter table games add column if not exists team_id uuid references teams(id) on 
 
 create index if not exists games_team_id_idx on games (team_id, game_date desc);
 
+-- Sharing: a public read-only link per game.
+alter table games add column if not exists share_token text unique;
+alter table games add column if not exists share_enabled boolean default false;
+
+create index if not exists games_share_token_idx on games (share_token);
+
+-- ============================================================
+-- Comments left by share-link recipients (no auth required)
+-- ============================================================
+create table if not exists game_comments (
+  id uuid primary key default gen_random_uuid(),
+  game_id uuid not null references games(id) on delete cascade,
+  author_name text,
+  body text not null,
+  created_at timestamptz default now()
+);
+
+create index if not exists game_comments_game_id_idx
+  on game_comments (game_id, created_at desc);
+
+alter table game_comments enable row level security;
+
+-- The owner can read/delete their game's comments.
+drop policy if exists "Owner reads game comments" on game_comments;
+create policy "Owner reads game comments"
+  on game_comments for select
+  using (
+    exists (
+      select 1 from games g
+      where g.id = game_comments.game_id and g.user_id = auth.uid()
+    )
+  );
+
+drop policy if exists "Owner deletes game comments" on game_comments;
+create policy "Owner deletes game comments"
+  on game_comments for delete
+  using (
+    exists (
+      select 1 from games g
+      where g.id = game_comments.game_id and g.user_id = auth.uid()
+    )
+  );
+
+-- Anonymous inserts are NOT allowed via RLS — share-link comments go
+-- through a server action that uses the service-role key, gated by token.
+
 -- ============================================================
 -- Subscriptions (Stripe)
 -- ============================================================
