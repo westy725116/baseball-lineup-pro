@@ -31,7 +31,13 @@ export type LineupData = {
   battingOrder: (string | null)[];
   currentInning: number;
   numInnings: number; // how many innings this game uses (6..9)
+  pitchers: string[]; // ordered playerIds: [starter, reliever1, reliever2, ...]
 };
+
+export function pitcherRoleLabel(index: number): string {
+  if (index === 0) return "Starter";
+  return `Reliever ${index}`;
+}
 
 export function emptyLineups(): Record<number, InningLineup> {
   const o: Record<number, InningLineup> = {};
@@ -46,6 +52,7 @@ export function defaultLineupData(): LineupData {
     battingOrder: new Array(DEFAULT_BATTING_SLOTS).fill(null),
     currentInning: 1,
     numInnings: DEFAULT_INNINGS,
+    pitchers: [],
   };
 }
 
@@ -100,6 +107,12 @@ export function normalize(raw: unknown): LineupData {
     data.currentInning <= d.numInnings
   ) {
     d.currentInning = data.currentInning;
+  }
+
+  if (Array.isArray(data.pitchers)) {
+    d.pitchers = data.pitchers.filter(
+      (id): id is string => typeof id === "string"
+    );
   }
 
   return d;

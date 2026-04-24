@@ -179,7 +179,7 @@ export default async function HomePage() {
             },
             {
               icon: "🔁",
-              title: "All six innings",
+              title: "Up to 9 innings",
               body: "Plan your defensive rotation ahead of time. Copy from inning to inning.",
             },
             {
@@ -230,7 +230,7 @@ export default async function HomePage() {
               $0<span className="text-base font-normal text-stone-500">/mo</span>
             </div>
             <ul className="space-y-2 text-sm text-stone-600">
-              <li>✓ Inning 1 lineup</li>
+              <li>✓ Innings 1–2 lineups</li>
               <li>✓ Roster + batting order</li>
               <li>✗ No saved games</li>
               <li>✗ No sharing</li>
@@ -243,11 +243,14 @@ export default async function HomePage() {
             <div className="text-sm font-semibold uppercase text-red-400 tracking-wider mb-1">
               Pro
             </div>
-            <div className="text-3xl font-bold mb-4">
-              $5<span className="text-base font-normal text-stone-400">/mo</span>
+            <div className="text-3xl font-bold mb-1">
+              $10<span className="text-base font-normal text-stone-400">/mo</span>
+            </div>
+            <div className="text-xs text-stone-400 mb-4">
+              or <span className="font-semibold text-white">$99/year</span> (save ~17%)
             </div>
             <ul className="space-y-2 text-sm text-stone-300">
-              <li>✓ All 6 innings</li>
+              <li>✓ All 9 innings</li>
               <li>✓ Save unlimited games</li>
               <li>✓ Share with coaches</li>
               <li>✓ Player history across games</li>

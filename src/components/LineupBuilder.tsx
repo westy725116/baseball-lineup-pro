@@ -9,6 +9,7 @@ import {
   defaultLineupData,
   normalize,
   uid,
+  pitcherRoleLabel,
 } from "@/lib/lineup";
 import styles from "./LineupBuilder.module.css";
 
@@ -27,6 +28,7 @@ export default function LineupBuilder({ gameId, initialData }: Props) {
   const [saveStatus, setSaveStatus] = useState<SaveStatus>("idle");
   const [dragOverPos, setDragOverPos] = useState<string | null>(null);
   const [dragOverBat, setDragOverBat] = useState<number | null>(null);
+  const [dragOverPitch, setDragOverPitch] = useState<number | null>(null);
 
   const supabase = useRef(createClient()).current;
   const isFirstRender = useRef(true);
@@ -176,6 +178,26 @@ export default function LineupBuilder({ gameId, initialData }: Props) {
     const seen = new Set(fielded);
     const remaining = data.players.map((p) => p.id).filter((id) => !seen.has(id));
     setData({ ...data, battingOrder: [...fielded, ...remaining] });
+  };
+
+  // Pitcher rotation
+  const addPitcher = (playerId: string, atIndex?: number) => {
+    const arr = data.pitchers.filter((id) => id !== playerId);
+    const idx = atIndex === undefined ? arr.length : Math.min(atIndex, arr.length);
+    arr.splice(idx, 0, playerId);
+    setData({ ...data, pitchers: arr });
+  };
+  const removePitcher = (idx: number) => {
+    const arr = [...data.pitchers];
+    arr.splice(idx, 1);
+    setData({ ...data, pitchers: arr });
+  };
+  const reorderPitchers = (from: number, to: number) => {
+    if (from === to) return;
+    const arr = [...data.pitchers];
+    const [moved] = arr.splice(from, 1);
+    arr.splice(to, 0, moved);
+    setData({ ...data, pitchers: arr });
   };
 
   // ----- Render -----
@@ -411,6 +433,8 @@ export default function LineupBuilder({ gameId, initialData }: Props) {
             </p>
           </section>
 
+          {/* Right column: batting + pitching stacked */}
+          <div className="flex flex-col gap-4 min-w-0">
           {/* Batting order */}
           <section className={styles.panel}>
             <h2 className={styles.panelTitle}>
@@ -489,6 +513,98 @@ export default function LineupBuilder({ gameId, initialData }: Props) {
               + Add slot
             </button>
           </section>
+
+          {/* Pitching plan */}
+          <section className={styles.panel}>
+            <h2 className={styles.panelTitle}>
+              Pitching Plan
+              <span className="font-normal normal-case tracking-normal text-stone-400 text-[11px]">
+                starter + relievers
+              </span>
+            </h2>
+            <ol
+              className={styles.battingList}
+              onDragOver={(e) => {
+                if (data.pitchers.length === 0) {
+                  e.preventDefault();
+                  e.dataTransfer.dropEffect = "move";
+                }
+              }}
+              onDrop={(e) => {
+                if (data.pitchers.length === 0) {
+                  e.preventDefault();
+                  const playerId = e.dataTransfer.getData("text/player-id");
+                  if (playerId) addPitcher(playerId);
+                }
+              }}
+            >
+              {data.pitchers.map((playerId, i) => {
+                const player = getPlayer(playerId);
+                const isOver = dragOverPitch === i;
+                return (
+                  <li
+                    key={`${playerId}-${i}`}
+                    className={`${styles.batItem} ${player ? "" : styles.empty} ${isOver ? styles.over : ""}`}
+                    draggable={!!player}
+                    onDragStart={
+                      player
+                        ? (e) => {
+                            e.dataTransfer.setData("text/pitcher-index", String(i));
+                            e.dataTransfer.setData("text/player-id", player.id);
+                            e.dataTransfer.effectAllowed = "move";
+                            e.currentTarget.classList.add(styles.dragging);
+                          }
+                        : undefined
+                    }
+                    onDragEnd={(e) =>
+                      e.currentTarget.classList.remove(styles.dragging)
+                    }
+                    onDragOver={(e) => {
+                      e.preventDefault();
+                      e.dataTransfer.dropEffect = "move";
+                      setDragOverPitch(i);
+                    }}
+                    onDragLeave={() => setDragOverPitch(null)}
+                    onDrop={(e) => {
+                      e.preventDefault();
+                      setDragOverPitch(null);
+                      const fromIdxRaw = e.dataTransfer.getData("text/pitcher-index");
+                      const droppedPlayerId = e.dataTransfer.getData("text/player-id");
+                      if (fromIdxRaw !== "") {
+                        reorderPitchers(parseInt(fromIdxRaw, 10), i);
+                      } else if (droppedPlayerId) {
+                        addPitcher(droppedPlayerId, i);
+                      }
+                    }}
+                  >
+                    <span className={styles.num}>{i + 1}</span>
+                    <span className={styles.name}>
+                      {player ? player.name : "(removed player)"}
+                    </span>
+                    <span className={styles.posTag}>
+                      {pitcherRoleLabel(i)}
+                    </span>
+                    <span
+                      className={styles.removeX}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        removePitcher(i);
+                      }}
+                      title="Remove from pitching plan"
+                    >
+                      ×
+                    </span>
+                  </li>
+                );
+              })}
+              {data.pitchers.length === 0 && (
+                <li className={`${styles.batItem} ${styles.empty}`}>
+                  Drag a player here to set the starter
+                </li>
+              )}
+            </ol>
+          </section>
+          </div>
         </div>
 
         {/* Player summary spans full width */}
