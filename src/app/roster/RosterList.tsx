@@ -30,17 +30,8 @@ export default function RosterList({ initial }: { initial: Player[] }) {
         return (
           <li
             key={p.id}
-            draggable
-            onDragStart={(e) => {
-              setDragId(p.id);
-              e.dataTransfer.effectAllowed = "move";
-              e.dataTransfer.setData("text/plain", p.id);
-            }}
-            onDragEnd={() => {
-              setDragId(null);
-              setDragOverId(null);
-            }}
             onDragOver={(e) => {
+              if (!dragId) return;
               e.preventDefault();
               e.dataTransfer.dropEffect = "move";
               setDragOverId(p.id);
@@ -61,7 +52,18 @@ export default function RosterList({ initial }: { initial: Player[] }) {
                 : "border-stone-200"
             } ${dragId === p.id ? "opacity-40" : ""}`}
           >
+            {/* Only this handle is draggable so the row's inputs stay typeable */}
             <span
+              draggable
+              onDragStart={(e) => {
+                setDragId(p.id);
+                e.dataTransfer.effectAllowed = "move";
+                e.dataTransfer.setData("text/plain", p.id);
+              }}
+              onDragEnd={() => {
+                setDragId(null);
+                setDragOverId(null);
+              }}
               className="cursor-grab text-stone-400 hover:text-stone-700 px-1 select-none"
               title="Drag to reorder"
             >
@@ -76,16 +78,16 @@ export default function RosterList({ initial }: { initial: Player[] }) {
                 name="jersey_number"
                 defaultValue={p.jersey_number ?? ""}
                 placeholder="#"
-                className="w-14 px-2 py-1 border border-transparent hover:border-stone-300 focus:border-blue-500 rounded text-sm focus:outline-none text-center"
+                className="w-14 px-2 py-1 border border-stone-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-center"
               />
               <input
                 name="name"
                 defaultValue={p.name}
-                className="flex-1 px-2 py-1 border border-transparent hover:border-stone-300 focus:border-blue-500 rounded text-sm focus:outline-none"
+                className="flex-1 px-2 py-1 border border-stone-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
               <button
                 type="submit"
-                className="text-xs text-blue-600 hover:text-blue-800 px-2"
+                className="text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded px-3 py-1"
                 title="Save changes"
               >
                 Save
