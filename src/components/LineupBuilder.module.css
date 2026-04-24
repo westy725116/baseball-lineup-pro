@@ -272,6 +272,55 @@
 }
 .printInningTitle { text-align: center; font-size: 11px; font-weight: 800; margin: 0 0 3px; color: #1d4ed8; }
 
+/* Print-only batting/pitching block, side-by-side */
+.printExtras {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  font-size: 11px;
+}
+.printExtraCard {
+  border: 1px solid #999;
+  border-radius: 4px;
+  padding: 6px 8px;
+  page-break-inside: avoid;
+}
+.printExtraTitle {
+  text-align: center;
+  font-size: 11px;
+  font-weight: 800;
+  margin: 0 0 4px;
+  color: #1d4ed8;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+}
+.printExtraList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.printExtraRow {
+  display: grid;
+  grid-template-columns: 18px 1fr auto;
+  gap: 6px;
+  align-items: baseline;
+  padding: 2px 0;
+  border-bottom: 1px dotted #d4d4d4;
+  font-size: 11px;
+}
+.printExtraRow:last-child { border-bottom: none; }
+.printExtraRow .num {
+  font-weight: 800;
+  color: #b91c1c;
+  text-align: right;
+}
+.printExtraRow .who { font-weight: 600; }
+.printExtraRow .tag {
+  font-size: 10px;
+  color: #6b7280;
+  font-style: italic;
+}
+
 @media print {
   .screenOnly { display: none !important; }
   .printOnly { display: block !important; }

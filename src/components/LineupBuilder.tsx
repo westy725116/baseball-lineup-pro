@@ -772,9 +772,67 @@ export default function LineupBuilder({
         </section>
       </div>
 
-      {/* Print-only view: mini-fields */}
+      {/* Print-only view: mini-fields + batting + pitching */}
       <PrintInnings data={data} cap={visibleInningCap} />
+      <PrintBattingPitching data={data} />
     </>
+  );
+}
+
+function PrintBattingPitching({ data }: { data: LineupData }) {
+  const getName = (id: string | null | undefined) =>
+    id ? data.players.find((p) => p.id === id)?.name ?? null : null;
+
+  const battingRows = data.battingOrder
+    .map((id, i) => ({ idx: i, name: getName(id) }))
+    .filter((r) => r.name); // hide empty slots in print
+
+  return (
+    <div className={`${styles.printOnly} ${styles.printExtras}`}>
+      <div className={styles.printExtraCard}>
+        <div className={styles.printExtraTitle}>Batting Order</div>
+        {battingRows.length === 0 ? (
+          <p style={{ textAlign: "center", color: "#9ca3af", margin: "4px 0" }}>
+            (none set)
+          </p>
+        ) : (
+          <ol className={styles.printExtraList}>
+            {battingRows.map((r) => (
+              <li key={r.idx} className={styles.printExtraRow}>
+                <span className="num">{r.idx + 1}.</span>
+                <span className="who">{r.name}</span>
+                <span></span>
+              </li>
+            ))}
+          </ol>
+        )}
+      </div>
+
+      <div className={styles.printExtraCard}>
+        <div className={styles.printExtraTitle}>Pitching Plan</div>
+        {data.pitchers.length === 0 ? (
+          <p style={{ textAlign: "center", color: "#9ca3af", margin: "4px 0" }}>
+            (none set)
+          </p>
+        ) : (
+          <ol className={styles.printExtraList}>
+            {data.pitchers.map((id, i) => {
+              const name = getName(id);
+              if (!name) return null;
+              return (
+                <li key={`${id}-${i}`} className={styles.printExtraRow}>
+                  <span className="num">{i + 1}.</span>
+                  <span className="who">{name}</span>
+                  <span className="tag">
+                    {pitcherRoleLabel(i)}
+                  </span>
+                </li>
+              );
+            })}
+          </ol>
+        )}
+      </div>
+    </div>
   );
 }
 
