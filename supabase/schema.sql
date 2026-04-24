@@ -15,6 +15,10 @@ create table if not exists games (
   updated_at timestamptz default now()
 );
 
+-- Lineup data is stored as JSON on the game row.
+-- Shape: { players: [{id,name}], lineups: {1..6: {pos: playerId}}, battingOrder: [playerId|null,...], currentInning: 1 }
+alter table games add column if not exists lineup_data jsonb default '{}'::jsonb;
+
 create index if not exists games_user_id_game_date_idx
   on games (user_id, game_date desc);
 

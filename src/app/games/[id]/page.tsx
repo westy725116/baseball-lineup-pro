@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
+import LineupBuilder from "@/components/LineupBuilder";
 
 export default async function GameDetailPage({
   params,
@@ -23,8 +24,8 @@ export default async function GameDetailPage({
   if (error || !game) notFound();
 
   return (
-    <div className="max-w-3xl mx-auto p-4 sm:p-6 w-full">
-      <header className="mb-6">
+    <div className="max-w-6xl mx-auto p-4 sm:p-6 w-full">
+      <header className="mb-5 print:hidden">
         <Link
           href="/games"
           className="text-sm text-stone-500 hover:text-stone-800"
@@ -46,15 +47,23 @@ export default async function GameDetailPage({
         </div>
       </header>
 
-      <div className="bg-white border border-dashed border-stone-300 rounded-lg p-8 text-center text-stone-500">
-        <p className="font-semibold text-stone-700 mb-1">
-          Lineup builder coming next
-        </p>
-        <p className="text-sm">
-          Roster, 6-inning defensive lineups, batting order, and player summary
-          will live here.
-        </p>
+      {/* Print header */}
+      <div className="hidden print:block mb-3">
+        <h1 className="text-xl font-bold text-center">
+          {game.home_team} vs {game.away_team}
+        </h1>
+        <div className="text-xs text-center text-stone-600">
+          {new Date(game.game_date).toLocaleDateString(undefined, {
+            weekday: "long",
+            month: "long",
+            day: "numeric",
+            year: "numeric",
+          })}
+          {game.location ? ` • ${game.location}` : ""}
+        </div>
       </div>
+
+      <LineupBuilder gameId={game.id} initialData={game.lineup_data} />
     </div>
   );
 }
