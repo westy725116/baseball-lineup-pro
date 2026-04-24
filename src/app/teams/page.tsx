@@ -6,7 +6,14 @@ import { createTeam, updateTeam, deleteTeam } from "./actions";
 
 export const dynamic = "force-dynamic";
 
-export default async function TeamsPage() {
+type SearchParams = Promise<{ error?: string }>;
+
+export default async function TeamsPage({
+  searchParams,
+}: {
+  searchParams: SearchParams;
+}) {
+  const { error: errorMsg } = await searchParams;
   const supabase = await createClient();
   const {
     data: { user },
@@ -47,6 +54,12 @@ export default async function TeamsPage() {
           history.
         </p>
       </header>
+
+      {errorMsg && (
+        <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-800 text-sm rounded">
+          {errorMsg}
+        </div>
+      )}
 
       <section className="bg-white border border-stone-200 rounded-lg p-5 mb-4">
         <h2 className="font-semibold text-sm mb-3 text-stone-700">

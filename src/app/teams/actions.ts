@@ -26,12 +26,20 @@ export async function createTeam(formData: FormData) {
     .maybeSingle();
   const nextOrder = ((max?.sort_order as number | undefined) ?? 0) + 10;
 
-  await supabase.from("teams").insert({
+  const { error } = await supabase.from("teams").insert({
     user_id: user.id,
     name,
     season_year: seasonYear ?? null,
     sort_order: nextOrder,
   });
+  if (error) {
+    redirect(
+      "/teams?error=" +
+        encodeURIComponent(
+          `Couldn't create team: ${error.message}. (You may need to re-run supabase/schema.sql.)`
+        )
+    );
+  }
   revalidatePath("/teams");
   revalidatePath("/games");
 }
