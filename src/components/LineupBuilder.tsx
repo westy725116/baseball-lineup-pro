@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import {
   POSITIONS,
+  POSITIONS_PRINT,
   MAX_INNINGS,
   type LineupData,
   defaultLineupData,
@@ -927,7 +928,7 @@ function PrintInnings({ data, cap }: { data: LineupData; cap: number }) {
                 <line x1="50" y1="79" x2="5" y2="34" stroke="#999" strokeWidth=".4" />
                 <line x1="50" y1="79" x2="95" y2="34" stroke="#999" strokeWidth=".4" />
               </svg>
-              {POSITIONS.map((pos) => {
+              {POSITIONS_PRINT.map((pos) => {
                 const playerId = lineup[pos.id];
                 const player = playerId
                   ? data.players.find((p) => p.id === playerId)

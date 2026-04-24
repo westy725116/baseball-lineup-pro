@@ -19,6 +19,20 @@ export const POSITIONS: Position[] = [
   { id: "RF", label: "Right Field", x: 78, y: 30 },
 ];
 
+// Same positions, but spread out for the small print/share mini-fields where
+// circle slots otherwise overlap.
+export const POSITIONS_PRINT: Position[] = [
+  { id: "P", label: "Pitcher", x: 50, y: 70 },
+  { id: "C", label: "Catcher", x: 50, y: 92 },
+  { id: "1B", label: "First Base", x: 76, y: 70 },
+  { id: "2B", label: "Second Base", x: 64, y: 48 },
+  { id: "3B", label: "Third Base", x: 24, y: 70 },
+  { id: "SS", label: "Shortstop", x: 36, y: 48 },
+  { id: "LF", label: "Left Field", x: 16, y: 24 },
+  { id: "CF", label: "Center Field", x: 50, y: 10 },
+  { id: "RF", label: "Right Field", x: 84, y: 24 },
+];
+
 export const DEFAULT_INNINGS = 6;
 export const MAX_INNINGS = 9;
 export const DEFAULT_BATTING_SLOTS = 12;

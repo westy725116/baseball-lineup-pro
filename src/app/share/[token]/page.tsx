@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { createAdminClient } from "@/lib/supabase/admin";
 import {
-  POSITIONS,
+  POSITIONS_PRINT,
   normalize,
   pitcherRoleLabel,
   type LineupData,
@@ -140,7 +140,7 @@ export default async function SharedGamePage({
                           strokeWidth=".4"
                         />
                       </svg>
-                      {POSITIONS.map((pos) => {
+                      {POSITIONS_PRINT.map((pos) => {
                         const playerId = lineup[pos.id];
                         const player = playerId
                           ? data.players.find((p) => p.id === playerId)
