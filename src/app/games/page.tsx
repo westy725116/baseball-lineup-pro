@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { logout } from "../login/actions";
 import { deleteGame } from "./actions";
 import { syncSubscriptionFromStripe, isPro, subStatusLabel } from "@/lib/subscription";
+import { isAdmin } from "@/lib/admin";
 
 export const dynamic = "force-dynamic";
 
@@ -22,6 +23,7 @@ export default async function GamesPage() {
   const sub = await syncSubscriptionFromStripe();
   const pro = isPro(sub);
   const statusLabel = subStatusLabel(sub);
+  const admin = await isAdmin();
 
   return (
     <div className="max-w-3xl mx-auto p-4 sm:p-6 w-full">
@@ -29,6 +31,15 @@ export default async function GamesPage() {
         <h1 className="text-2xl font-bold">⚾ Lineup Pro</h1>
         <div className="flex items-center gap-2 text-sm">
           <span className="text-stone-500 hidden sm:inline">{user.email}</span>
+          {admin && (
+            <Link
+              href="/admin"
+              className="px-3 py-1.5 text-sm border border-stone-900 bg-stone-900 text-white rounded hover:bg-stone-800"
+              title="Admin dashboard"
+            >
+              ⚙ Admin
+            </Link>
+          )}
           <Link
             href="/upgrade"
             className={
