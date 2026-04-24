@@ -1,9 +1,9 @@
 import Link from "next/link";
-import { login, signup } from "./actions";
+import { requestPasswordReset } from "./actions";
 
 type SearchParams = Promise<{ error?: string; message?: string }>;
 
-export default async function LoginPage({
+export default async function ForgotPasswordPage({
   searchParams,
 }: {
   searchParams: SearchParams;
@@ -18,10 +18,10 @@ export default async function LoginPage({
           <span className="font-bold text-lg tracking-tight">Lineup Pro</span>
         </Link>
         <Link
-          href="/"
+          href="/login"
           className="text-sm font-medium text-stone-600 hover:text-stone-900"
         >
-          ← Home
+          ← Back to login
         </Link>
       </nav>
 
@@ -29,10 +29,10 @@ export default async function LoginPage({
         <div className="w-full max-w-sm">
           <div className="bg-white p-7 rounded-2xl shadow-lg border border-stone-200">
             <h1 className="text-2xl font-bold mb-1 text-center">
-              Welcome back
+              Reset your password
             </h1>
             <p className="text-sm text-stone-500 text-center mb-6">
-              Log in or create an account to start.
+              Enter your email and we&apos;ll send you a link to set a new password.
             </p>
 
             {message && (
@@ -46,7 +46,7 @@ export default async function LoginPage({
               </div>
             )}
 
-            <form className="space-y-4">
+            <form action={requestPasswordReset} className="space-y-4">
               <div>
                 <label className="block text-xs font-semibold text-stone-600 mb-1.5 uppercase tracking-wider">
                   Email
@@ -59,54 +59,23 @@ export default async function LoginPage({
                   className="w-full px-3 py-2.5 border border-stone-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
                 />
               </div>
-              <div>
-                <div className="flex justify-between items-center mb-1.5">
-                  <label className="block text-xs font-semibold text-stone-600 uppercase tracking-wider">
-                    Password
-                  </label>
-                  <Link
-                    href="/forgot-password"
-                    className="text-xs font-semibold text-red-600 hover:text-red-700"
-                  >
-                    Forgot?
-                  </Link>
-                </div>
-                <input
-                  name="password"
-                  type="password"
-                  required
-                  minLength={6}
-                  autoComplete="current-password"
-                  className="w-full px-3 py-2.5 border border-stone-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                />
-              </div>
               <button
-                formAction={login}
+                type="submit"
                 className="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-2.5 rounded-md text-sm shadow-sm"
               >
-                Log in
-              </button>
-              <div className="relative py-1">
-                <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-stone-200" />
-                </div>
-                <div className="relative flex justify-center text-xs">
-                  <span className="px-2 bg-white text-stone-400 uppercase tracking-wider">
-                    or
-                  </span>
-                </div>
-              </div>
-              <button
-                formAction={signup}
-                className="w-full bg-white border border-stone-300 hover:bg-stone-50 text-stone-800 font-semibold py-2.5 rounded-md text-sm"
-              >
-                Create an account
+                Send reset link
               </button>
             </form>
           </div>
 
           <p className="text-center text-xs text-stone-500 mt-4">
-            By continuing you agree that this is a beta tool — back up anything important.
+            Remember it after all?{" "}
+            <Link
+              href="/login"
+              className="font-semibold text-red-600 hover:text-red-700"
+            >
+              Log in
+            </Link>
           </p>
         </div>
       </main>

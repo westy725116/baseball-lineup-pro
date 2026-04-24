@@ -33,6 +33,7 @@ export async function updateSession(request: NextRequest) {
   const isPublic =
     path === "/" ||
     path.startsWith("/login") ||
+    path.startsWith("/forgot-password") ||
     path.startsWith("/auth");
 
   if (!user && !isPublic) {
