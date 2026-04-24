@@ -86,6 +86,10 @@ async function syncSubscription(
     typeof sub.customer === "string" ? sub.customer : sub.customer.id;
 
   const periodEnd = getCurrentPeriodEnd(sub);
+  const willCancel =
+    sub.cancel_at_period_end === true || sub.cancel_at != null;
+  const cancelOrPeriodEnd =
+    sub.cancel_at != null ? sub.cancel_at : periodEnd;
   await admin.from("subscriptions").upsert(
     {
       user_id: userId,
@@ -94,10 +98,10 @@ async function syncSubscription(
       stripe_price_id: priceId,
       status: sub.status,
       plan,
-      current_period_end: periodEnd
-        ? new Date(periodEnd * 1000).toISOString()
+      current_period_end: cancelOrPeriodEnd
+        ? new Date(cancelOrPeriodEnd * 1000).toISOString()
         : null,
-      cancel_at_period_end: sub.cancel_at_period_end,
+      cancel_at_period_end: willCancel,
       updated_at: new Date().toISOString(),
     },
     { onConflict: "user_id" }

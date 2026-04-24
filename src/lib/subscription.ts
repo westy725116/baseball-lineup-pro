@@ -60,6 +60,12 @@ export async function syncSubscriptionFromStripe(): Promise<Subscription | null>
 
     const priceId = sub.items.data[0]?.price.id ?? null;
     const periodEnd = getCurrentPeriodEnd(sub);
+    // A scheduled cancellation can be reported in either of two fields,
+    // depending on Stripe portal config. Treat either as "will cancel".
+    const willCancel =
+      sub.cancel_at_period_end === true || sub.cancel_at != null;
+    const cancelOrPeriodEnd =
+      sub.cancel_at != null ? sub.cancel_at : periodEnd;
     const row = {
       user_id: user.id,
       stripe_customer_id: customerId,
@@ -67,10 +73,10 @@ export async function syncSubscriptionFromStripe(): Promise<Subscription | null>
       stripe_price_id: priceId,
       status: sub.status,
       plan: priceId ? planFromPriceId(priceId) : null,
-      current_period_end: periodEnd
-        ? new Date(periodEnd * 1000).toISOString()
+      current_period_end: cancelOrPeriodEnd
+        ? new Date(cancelOrPeriodEnd * 1000).toISOString()
         : null,
-      cancel_at_period_end: sub.cancel_at_period_end,
+      cancel_at_period_end: willCancel,
       updated_at: new Date().toISOString(),
     };
     await admin
