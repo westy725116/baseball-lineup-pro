@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { getSubscription, isPro } from "@/lib/subscription";
+import { syncSubscriptionFromStripe, isPro } from "@/lib/subscription";
 import { startCheckout, openCustomerPortal } from "./actions";
 
 type SearchParams = Promise<{ canceled?: string; error?: string }>;
@@ -19,7 +19,9 @@ export default async function UpgradePage({
   } = await supabase.auth.getUser();
   if (!user) redirect("/login?next=/upgrade");
 
-  const sub = await getSubscription();
+  // Sync from Stripe so the displayed status is always current,
+  // even if a webhook event was missed.
+  const sub = await syncSubscriptionFromStripe();
   const pro = isPro(sub);
 
   return (
@@ -41,14 +43,38 @@ export default async function UpgradePage({
         {pro ? (
           <div className="bg-white border border-emerald-200 p-6 rounded-xl mb-8">
             <h1 className="text-2xl font-bold mb-1">You&apos;re on Pro 🎉</h1>
-            <p className="text-stone-600 mb-4">
-              Plan: <strong>{sub?.plan === "annual" ? "Annual ($99/yr)" : "Monthly ($10/mo)"}</strong>
-              {sub?.cancel_at_period_end && (
-                <span className="text-amber-700 ml-2">
-                  (will end {sub.current_period_end ? new Date(sub.current_period_end).toLocaleDateString() : "soon"})
-                </span>
-              )}
-            </p>
+            <div className="text-stone-700 mb-1">
+              Plan:{" "}
+              <strong>
+                {sub?.plan === "annual" ? "Annual ($99/yr)" : "Monthly ($10/mo)"}
+              </strong>
+            </div>
+            {sub?.cancel_at_period_end && sub.current_period_end && (
+              <div className="text-amber-700 text-sm mb-4">
+                ⏳ Cancels on{" "}
+                <strong>
+                  {new Date(sub.current_period_end).toLocaleDateString(undefined, {
+                    month: "long",
+                    day: "numeric",
+                    year: "numeric",
+                  })}
+                </strong>
+                . You&apos;ll keep Pro access until then.
+              </div>
+            )}
+            {!sub?.cancel_at_period_end && sub?.current_period_end && (
+              <div className="text-stone-500 text-sm mb-4">
+                Renews on{" "}
+                <strong>
+                  {new Date(sub.current_period_end).toLocaleDateString(undefined, {
+                    month: "long",
+                    day: "numeric",
+                    year: "numeric",
+                  })}
+                </strong>
+                .
+              </div>
+            )}
             <form action={openCustomerPortal}>
               <button className="px-4 py-2 bg-stone-900 hover:bg-stone-800 text-white text-sm font-semibold rounded">
                 Manage subscription

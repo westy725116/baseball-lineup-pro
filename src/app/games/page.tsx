@@ -3,7 +3,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { logout } from "../login/actions";
 import { deleteGame } from "./actions";
-import { getSubscription, isPro } from "@/lib/subscription";
+import { getSubscription, isPro, subStatusLabel } from "@/lib/subscription";
 
 export default async function GamesPage() {
   const supabase = await createClient();
@@ -19,6 +19,7 @@ export default async function GamesPage() {
 
   const sub = await getSubscription();
   const pro = isPro(sub);
+  const statusLabel = subStatusLabel(sub);
 
   return (
     <div className="max-w-3xl mx-auto p-4 sm:p-6 w-full">
@@ -33,9 +34,15 @@ export default async function GamesPage() {
                 ? "px-3 py-1.5 text-sm border border-emerald-300 bg-emerald-50 text-emerald-800 rounded hover:bg-emerald-100"
                 : "px-3 py-1.5 text-sm bg-red-600 hover:bg-red-700 text-white font-semibold rounded"
             }
+            title={statusLabel ?? undefined}
           >
-            {pro ? "✓ Pro" : "Upgrade"}
+            {pro ? `✓ Pro` : "Upgrade"}
           </Link>
+          {pro && statusLabel && (
+            <span className="hidden sm:inline text-xs text-stone-500">
+              {statusLabel.replace("Annual • ", "").replace("Monthly • ", "")}
+            </span>
+          )}
           <form action={logout}>
             <button className="px-3 py-1.5 text-sm border border-stone-300 rounded hover:bg-stone-100">
               Log out
