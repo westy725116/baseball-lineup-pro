@@ -19,6 +19,32 @@ create table if not exists games (
 -- Shape: { players: [{id,name}], lineups: {1..6: {pos: playerId}}, battingOrder: [playerId|null,...], currentInning: 1 }
 alter table games add column if not exists lineup_data jsonb default '{}'::jsonb;
 
+-- ============================================================
+-- Subscriptions (Stripe)
+-- ============================================================
+create table if not exists subscriptions (
+  user_id uuid primary key references auth.users(id) on delete cascade,
+  stripe_customer_id text unique,
+  stripe_subscription_id text unique,
+  stripe_price_id text,
+  status text, -- active, trialing, past_due, canceled, incomplete, etc.
+  plan text,   -- 'monthly' | 'annual'
+  current_period_end timestamptz,
+  cancel_at_period_end boolean default false,
+  created_at timestamptz default now(),
+  updated_at timestamptz default now()
+);
+
+alter table subscriptions enable row level security;
+
+drop policy if exists "Users can view their own subscription" on subscriptions;
+create policy "Users can view their own subscription"
+  on subscriptions for select
+  using (auth.uid() = user_id);
+
+-- Note: writes happen only from the server (with service-role) via the Stripe webhook,
+-- so no insert/update/delete policies are needed for users.
+
 create index if not exists games_user_id_game_date_idx
   on games (user_id, game_date desc);
 

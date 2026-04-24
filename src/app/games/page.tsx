@@ -3,6 +3,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { logout } from "../login/actions";
 import { deleteGame } from "./actions";
+import { getSubscription, isPro } from "@/lib/subscription";
 
 export default async function GamesPage() {
   const supabase = await createClient();
@@ -16,12 +17,25 @@ export default async function GamesPage() {
     .select("*")
     .order("game_date", { ascending: false });
 
+  const sub = await getSubscription();
+  const pro = isPro(sub);
+
   return (
     <div className="max-w-3xl mx-auto p-4 sm:p-6 w-full">
-      <header className="flex items-center justify-between mb-6">
+      <header className="flex items-center justify-between mb-6 flex-wrap gap-2">
         <h1 className="text-2xl font-bold">⚾ Lineup Pro</h1>
-        <div className="flex items-center gap-3 text-sm">
+        <div className="flex items-center gap-2 text-sm">
           <span className="text-stone-500 hidden sm:inline">{user.email}</span>
+          <Link
+            href="/upgrade"
+            className={
+              pro
+                ? "px-3 py-1.5 text-sm border border-emerald-300 bg-emerald-50 text-emerald-800 rounded hover:bg-emerald-100"
+                : "px-3 py-1.5 text-sm bg-red-600 hover:bg-red-700 text-white font-semibold rounded"
+            }
+          >
+            {pro ? "✓ Pro" : "Upgrade"}
+          </Link>
           <form action={logout}>
             <button className="px-3 py-1.5 text-sm border border-stone-300 rounded hover:bg-stone-100">
               Log out

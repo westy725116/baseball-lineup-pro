@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import LineupBuilder from "@/components/LineupBuilder";
+import { getSubscription, isPro, FREE_INNINGS } from "@/lib/subscription";
 
 export default async function GameDetailPage({
   params,
@@ -22,6 +23,9 @@ export default async function GameDetailPage({
     .single();
 
   if (error || !game) notFound();
+
+  const sub = await getSubscription();
+  const pro = isPro(sub);
 
   return (
     <div className="max-w-6xl mx-auto p-4 sm:p-6 w-full">
@@ -63,7 +67,26 @@ export default async function GameDetailPage({
         </div>
       </div>
 
-      <LineupBuilder gameId={game.id} initialData={game.lineup_data} />
+      {!pro && (
+        <div className="mb-3 print:hidden flex items-center justify-between bg-amber-50 border border-amber-200 rounded-lg px-4 py-2 text-sm">
+          <span className="text-amber-900">
+            <strong>Free plan:</strong> innings 1–{FREE_INNINGS} only.
+          </span>
+          <Link
+            href="/upgrade"
+            className="px-3 py-1 bg-red-600 hover:bg-red-700 text-white text-xs font-semibold rounded"
+          >
+            Unlock all 9 →
+          </Link>
+        </div>
+      )}
+
+      <LineupBuilder
+        gameId={game.id}
+        initialData={game.lineup_data}
+        isPro={pro}
+        freeInnings={FREE_INNINGS}
+      />
     </div>
   );
 }

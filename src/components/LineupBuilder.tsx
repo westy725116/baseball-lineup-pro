@@ -16,11 +16,19 @@ import styles from "./LineupBuilder.module.css";
 type Props = {
   gameId: string;
   initialData: unknown;
+  isPro: boolean;
+  freeInnings: number;
 };
 
 type SaveStatus = "idle" | "saving" | "saved" | "error";
 
-export default function LineupBuilder({ gameId, initialData }: Props) {
+export default function LineupBuilder({
+  gameId,
+  initialData,
+  isPro,
+  freeInnings,
+}: Props) {
+  const visibleInningCap = isPro ? MAX_INNINGS : freeInnings;
   const [data, setData] = useState<LineupData>(() =>
     normalize(initialData ?? defaultLineupData())
   );
@@ -32,6 +40,13 @@ export default function LineupBuilder({ gameId, initialData }: Props) {
 
   const supabase = useRef(createClient()).current;
   const isFirstRender = useRef(true);
+
+  // If a free user lands on a locked inning, snap them back to the cap.
+  useEffect(() => {
+    if (data.currentInning > visibleInningCap) {
+      setData((d) => ({ ...d, currentInning: visibleInningCap }));
+    }
+  }, [data.currentInning, visibleInningCap]);
 
   // Persist to Supabase whenever data changes (debounced)
   useEffect(() => {
@@ -299,7 +314,10 @@ export default function LineupBuilder({ gameId, initialData }: Props) {
             <div className={styles.fieldHeader}>
               <h2>Defensive Lineup</h2>
               <div className={styles.inningTabs}>
-                {Array.from({ length: data.numInnings }, (_, k) => k + 1).map((i) => {
+                {Array.from(
+                  { length: Math.min(data.numInnings, visibleInningCap) },
+                  (_, k) => k + 1
+                ).map((i) => {
                   const filledCount = Object.values(data.lineups[i] || {}).filter(
                     Boolean
                   ).length;
@@ -315,7 +333,8 @@ export default function LineupBuilder({ gameId, initialData }: Props) {
                     </button>
                   );
                 })}
-                {data.numInnings < MAX_INNINGS && (
+                {/* "+ Add inning" — pro only */}
+                {isPro && data.numInnings < MAX_INNINGS && (
                   <button
                     className={styles.inningTab}
                     onClick={() =>
@@ -330,6 +349,26 @@ export default function LineupBuilder({ gameId, initialData }: Props) {
                   >
                     +
                   </button>
+                )}
+                {/* Locked tabs for free users */}
+                {!isPro && visibleInningCap < MAX_INNINGS && (
+                  <a
+                    href="/upgrade"
+                    className={styles.inningTab}
+                    style={{
+                      borderStyle: "dashed",
+                      color: "#b91c1c",
+                      fontWeight: 700,
+                      textDecoration: "none",
+                      paddingLeft: 8,
+                      paddingRight: 8,
+                      width: "auto",
+                      whiteSpace: "nowrap",
+                    }}
+                    title={`Unlock innings ${freeInnings + 1}–9 with Pro`}
+                  >
+                    🔒 Pro
+                  </a>
                 )}
               </div>
               <div className={styles.inningActions}>
@@ -616,18 +655,19 @@ export default function LineupBuilder({ gameId, initialData }: Props) {
             </span>
           </h2>
           <div className={styles.summaryWrap}>
-            <SummaryTable data={data} />
+            <SummaryTable data={data} cap={visibleInningCap} />
           </div>
         </section>
       </div>
 
-      {/* Print-only view: 6 mini-fields */}
-      <PrintInnings data={data} />
+      {/* Print-only view: mini-fields */}
+      <PrintInnings data={data} cap={visibleInningCap} />
     </>
   );
 }
 
-function SummaryTable({ data }: { data: LineupData }) {
+function SummaryTable({ data, cap }: { data: LineupData; cap: number }) {
+  const inningCount = Math.min(data.numInnings, cap);
   if (data.players.length === 0) {
     return (
       <p className="text-sm text-stone-500 italic p-2">
@@ -642,7 +682,7 @@ function SummaryTable({ data }: { data: LineupData }) {
         <tr>
           <th className={styles.summaryPlayer}>Player</th>
           <th>Innings</th>
-          {Array.from({ length: data.numInnings }, (_, k) => k + 1).map((i) => (
+          {Array.from({ length: inningCount }, (_, k) => k + 1).map((i) => (
             <th key={i}>{i}</th>
           ))}
         </tr>
@@ -650,7 +690,7 @@ function SummaryTable({ data }: { data: LineupData }) {
       <tbody>
         {data.players.map((p) => {
           const positionsByInning = Array.from(
-            { length: data.numInnings },
+            { length: inningCount },
             (_, k) => positionInInning(data, p.id, k + 1)
           );
           const playedCount = positionsByInning.filter(Boolean).length;
@@ -658,7 +698,7 @@ function SummaryTable({ data }: { data: LineupData }) {
             <tr key={p.id}>
               <td className={styles.summaryPlayer}>{p.name}</td>
               <td className={styles.summaryCount}>
-                {playedCount}/{data.numInnings}
+                {playedCount}/{inningCount}
               </td>
               {positionsByInning.map((pos, i) => (
                 <td
@@ -689,10 +729,11 @@ function positionInInning(
   return null;
 }
 
-function PrintInnings({ data }: { data: LineupData }) {
+function PrintInnings({ data, cap }: { data: LineupData; cap: number }) {
+  const inningCount = Math.min(data.numInnings, cap);
   return (
     <div className={`${styles.printOnly} ${styles.printInnings}`}>
-      {Array.from({ length: data.numInnings }, (_, k) => k + 1).map((i) => {
+      {Array.from({ length: inningCount }, (_, k) => k + 1).map((i) => {
         const lineup = data.lineups[i] || {};
         return (
           <div key={i} className={styles.printInningCard}>
