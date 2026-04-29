@@ -46,17 +46,9 @@ export default function LineupBuilder({
   // page (roster at top → field below) is essentially unusable.
   const [selectedPlayerId, setSelectedPlayerId] = useState<string | null>(null);
 
-  // On phones, use the spread-out POSITIONS_PRINT layout so the infielder
-  // circles don't overlap. Defaults to desktop on SSR, then hydrates correctly.
-  const [isMobile, setIsMobile] = useState(false);
-  useEffect(() => {
-    const mq = window.matchMedia("(max-width: 640px)");
-    const update = () => setIsMobile(mq.matches);
-    update();
-    mq.addEventListener("change", update);
-    return () => mq.removeEventListener("change", update);
-  }, []);
-  const fieldPositions = isMobile ? POSITIONS_PRINT : POSITIONS;
+  // Use the spread-out positions everywhere — they prevent infielder
+  // circles from overlapping even when the field column is narrow.
+  const fieldPositions = POSITIONS_PRINT;
 
   const supabase = useRef(createClient()).current;
   const isFirstRender = useRef(true);

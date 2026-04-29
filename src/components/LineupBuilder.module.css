@@ -98,19 +98,24 @@
   display: flex;
   gap: 4px;
   flex: 1;
-  flex-wrap: nowrap;
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: thin;
+  flex-wrap: wrap; /* desktop: wrap onto multiple rows if too many */
 }
-.inningTabs::-webkit-scrollbar { height: 4px; }
-.inningTabs::-webkit-scrollbar-thumb { background: #d4d4d8; border-radius: 2px; }
 
-/* On narrow screens, give the inning tabs their own row (full width)
-   so they lay out left-to-right with plenty of room. */
+/* On narrow screens, the tabs get their own row, lay out horizontally
+   in a single line, and scroll left/right if there are too many to fit. */
 @media (max-width: 640px) {
   .fieldHeader { gap: 8px; }
-  .inningTabs { flex: 1 1 100%; order: 3; padding-bottom: 4px; }
+  .inningTabs {
+    flex: 1 1 100%;
+    order: 3;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    padding-bottom: 4px;
+  }
+  .inningTabs::-webkit-scrollbar { height: 4px; }
+  .inningTabs::-webkit-scrollbar-thumb { background: #d4d4d8; border-radius: 2px; }
   .inningActions { margin-left: auto; }
 }
 .inningTab {
