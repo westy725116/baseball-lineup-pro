@@ -19,15 +19,18 @@ export const POSITIONS: Position[] = [
   { id: "RF", label: "Right Field", x: 78, y: 30 },
 ];
 
-// Same positions, but spread out for the small print/share mini-fields where
-// circle slots otherwise overlap.
+// Same positions, spread to keep circles from overlapping in narrower
+// fields. Used on the on-screen field, the print mini-fields, and share view.
 export const POSITIONS_PRINT: Position[] = [
   { id: "P", label: "Pitcher", x: 50, y: 70 },
   { id: "C", label: "Catcher", x: 50, y: 92 },
-  { id: "1B", label: "First Base", x: 76, y: 70 },
-  { id: "2B", label: "Second Base", x: 64, y: 48 },
-  { id: "3B", label: "Third Base", x: 24, y: 70 },
-  { id: "SS", label: "Shortstop", x: 36, y: 48 },
+  // Cornermen pulled toward their actual bases on the diamond
+  { id: "1B", label: "First Base", x: 70, y: 73 },
+  { id: "3B", label: "Third Base", x: 30, y: 73 },
+  // Middle infielders pulled in toward second base, slightly above the dirt
+  { id: "2B", label: "Second Base", x: 59, y: 50 },
+  { id: "SS", label: "Shortstop", x: 41, y: 50 },
+  // Outfield
   { id: "LF", label: "Left Field", x: 16, y: 24 },
   { id: "CF", label: "Center Field", x: 50, y: 10 },
   { id: "RF", label: "Right Field", x: 84, y: 24 },
