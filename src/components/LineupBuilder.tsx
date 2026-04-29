@@ -323,22 +323,23 @@ export default function LineupBuilder({
   return (
     <>
       <div className={styles.screenOnly}>
-        <div className="flex items-center gap-3 mb-3 text-xs">
+        <div className="flex items-center gap-3 mb-3">
           <button
             onClick={() => window.print()}
-            className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded"
+            className="px-3 py-2 text-sm bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded"
           >
             🖨 Print
           </button>
           <span
             className={
-              saveStatus === "error"
+              "text-sm " +
+              (saveStatus === "error"
                 ? "text-red-600 font-semibold"
                 : saveStatus === "saving"
                   ? "text-stone-500"
                   : saveStatus === "saved"
-                    ? "text-emerald-600"
-                    : "text-stone-400"
+                    ? "text-emerald-700 font-semibold"
+                    : "text-stone-400")
             }
           >
             {saveStatus === "saving"
@@ -364,7 +365,7 @@ export default function LineupBuilder({
               <button
                 type="button"
                 onClick={loadFromTeamRoster}
-                className="flex-1 text-[11px] font-semibold border border-stone-300 bg-white hover:bg-stone-50 rounded px-2 py-1"
+                className="flex-1 text-sm font-semibold text-stone-800 border border-stone-300 bg-white hover:bg-stone-50 rounded px-3 py-1.5"
                 title="Pull players from your saved team roster"
               >
                 ↓ Load roster
@@ -372,14 +373,14 @@ export default function LineupBuilder({
               <button
                 type="button"
                 onClick={saveRosterToTeam}
-                className="flex-1 text-[11px] font-semibold border border-stone-300 bg-white hover:bg-stone-50 rounded px-2 py-1"
+                className="flex-1 text-sm font-semibold text-stone-800 border border-stone-300 bg-white hover:bg-stone-50 rounded px-3 py-1.5"
                 title="Save these players to your team roster"
               >
                 ↑ Save to team
               </button>
             </div>
             {rosterMsg && (
-              <div className="text-[11px] text-stone-500 mb-2 px-1">
+              <div className="text-xs text-stone-600 mb-2 px-1">
                 {rosterMsg}
               </div>
             )}
@@ -499,14 +500,14 @@ export default function LineupBuilder({
               <div className={styles.inningActions}>
                 <button
                   onClick={copyFromPreviousInning}
-                  className="border border-stone-300 rounded bg-white hover:bg-stone-50"
+                  className="text-xs font-semibold text-stone-700 border border-stone-300 rounded bg-white hover:bg-stone-50 px-2 py-1"
                   title="Copy previous inning's lineup"
                 >
                   ⧉ Copy prev
                 </button>
                 <button
                   onClick={clearCurrentInning}
-                  className="border border-red-200 text-red-600 rounded bg-white hover:bg-red-50"
+                  className="text-xs font-semibold text-red-700 border border-red-200 rounded bg-white hover:bg-red-50 px-2 py-1"
                   title="Clear this inning"
                 >
                   Clear inning
@@ -605,7 +606,7 @@ export default function LineupBuilder({
               Batting Order
               <button
                 onClick={autoFillBattingOrder}
-                className="border border-stone-300 rounded bg-white hover:bg-stone-50 text-[11px] font-semibold px-2 py-0.5 normal-case tracking-normal"
+                className="border border-stone-300 rounded bg-white hover:bg-stone-50 text-xs font-semibold text-stone-700 px-2 py-1 normal-case tracking-normal"
               >
                 Auto-fill
               </button>
@@ -672,7 +673,7 @@ export default function LineupBuilder({
             </ol>
             <button
               onClick={addBattingSlot}
-              className="mt-2 w-full border border-stone-300 rounded bg-white hover:bg-stone-50 text-xs font-semibold py-1.5"
+              className="mt-2 w-full border border-stone-300 rounded bg-white hover:bg-stone-50 text-sm font-semibold text-stone-700 py-2"
             >
               + Add slot
             </button>

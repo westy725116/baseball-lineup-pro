@@ -27,7 +27,7 @@ export default function EditGameInfo({
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="px-3 py-1.5 text-xs font-semibold border border-stone-300 bg-white hover:bg-stone-50 rounded"
+        className="px-3 py-2 text-sm font-semibold text-stone-800 border border-stone-300 bg-white hover:bg-stone-50 rounded"
         title="Edit teams, date, location"
       >
         ✎ Edit info

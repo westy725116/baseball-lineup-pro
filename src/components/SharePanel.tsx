@@ -29,7 +29,7 @@ export default function SharePanel({
     return (
       <a
         href="/upgrade"
-        className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-semibold border border-red-200 text-red-700 bg-red-50 rounded hover:bg-red-100"
+        className="inline-flex items-center gap-1 px-3 py-2 text-sm font-semibold border border-red-200 text-red-700 bg-red-50 rounded hover:bg-red-100"
         title="Sharing is a Pro feature"
       >
         🔒 Share
@@ -44,7 +44,7 @@ export default function SharePanel({
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-semibold border border-stone-300 bg-white hover:bg-stone-50 rounded"
+        className="inline-flex items-center gap-1 px-3 py-2 text-sm font-semibold text-stone-800 border border-stone-300 bg-white hover:bg-stone-50 rounded"
       >
         🔗 Share {shareEnabled ? "(on)" : ""}
       </button>

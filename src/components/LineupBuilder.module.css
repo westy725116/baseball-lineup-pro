@@ -33,28 +33,34 @@
 .rosterInput { display: flex; gap: 6px; margin-bottom: 10px; }
 .rosterInput input {
   flex: 1;
-  padding: 7px 10px;
+  padding: 9px 12px;
   border: 1px solid #d1d5db;
   border-radius: 6px;
   font: inherit;
-  font-size: 14px;
+  font-size: 16px; /* 16px+ avoids iOS Safari auto-zoom on focus */
+  color: #1f2937;
 }
+.rosterInput input::placeholder { color: #6b7280; opacity: 1; }
+.rosterInput input:focus { outline: 2px solid #1d4ed8; outline-offset: -1px; }
 .rosterList { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; min-height: 40px; }
 .player {
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: 6px 8px;
+  padding: 8px 10px;
   background: #fafaf7;
   border: 1px solid #e7e5e0;
   border-radius: 6px;
   cursor: grab;
   user-select: none;
-  font-size: 14px;
+  font-size: 15px;
+  color: #1f2937;
 }
 .player:hover { background: #f3f1ea; }
 .player.dragging { opacity: .4; }
-.player.placed { opacity: .6; font-style: italic; }
+/* "Placed" players are still readable — just a quieter color, not opacity */
+.player.placed { color: #78716c; font-style: italic; }
+.player.placed .name { text-decoration: line-through; text-decoration-color: #d1d5db; }
 .player .name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .posTag {
   font-size: 10px;
@@ -79,14 +85,14 @@
 .fieldHeader h2 { white-space: nowrap; margin: 0; font-size: 12px; text-transform: uppercase; letter-spacing: .8px; color: #6b7280; font-weight: 700; }
 .inningTabs { display: flex; gap: 4px; flex: 1; flex-wrap: wrap; }
 .inningTab {
-  width: 32px;
-  height: 32px;
+  width: 36px;
+  height: 36px;
   border: 1px solid #d1d5db;
   background: #fff;
   border-radius: 6px;
   cursor: pointer;
   font-weight: 700;
-  font-size: 13px;
+  font-size: 14px;
   color: #1f2937;
   display: flex;
   align-items: center;
@@ -107,7 +113,6 @@
 }
 .inningTabActive .dot { background: #fff; }
 .inningActions { display: flex; gap: 4px; }
-.inningActions button { font-size: 11px; padding: 4px 8px; }
 
 .field {
   position: relative;
@@ -184,13 +189,14 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 7px 8px;
+  padding: 9px 10px;
   background: #fafaf7;
   border: 1px solid #e7e5e0;
   border-radius: 6px;
   cursor: grab;
   user-select: none;
-  font-size: 14px;
+  font-size: 15px;
+  color: #1f2937;
 }
 .batItem.dragging { opacity: .4; }
 .batItem.over { border-color: #1d4ed8; background: #eff6ff; }
@@ -233,7 +239,7 @@
 .summaryPos { font-weight: 700; color: #b91c1c; background: #fef2f2; }
 .summaryCount { font-weight: 800; }
 
-.hint { color: #6b7280; font-size: 11px; margin-top: 8px; }
+.hint { color: #6b7280; font-size: 12px; margin-top: 8px; }
 
 /* ---------- Print ---------- */
 .printOnly { display: none; }
