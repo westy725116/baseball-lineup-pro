@@ -5,6 +5,7 @@ import { headers } from "next/headers";
 import LineupBuilder from "@/components/LineupBuilder";
 import SharePanel from "@/components/SharePanel";
 import EditGameInfo from "@/components/EditGameInfo";
+import HelpPanel from "@/components/HelpPanel";
 import { getSubscription, isPro, FREE_INNINGS } from "@/lib/subscription";
 import { listTeamsAndEnsureDefault } from "@/lib/teams";
 import { deleteComment } from "./share-actions";
@@ -129,6 +130,8 @@ export default async function GameDetailPage({
           </Link>
         </div>
       )}
+
+      <HelpPanel />
 
       <LineupBuilder
         gameId={game.id}
