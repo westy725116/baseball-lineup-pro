@@ -11,12 +11,8 @@ export default function HelpPanel() {
   const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
-    try {
-      const dismissed = localStorage.getItem(STORAGE_KEY);
-      setOpen(!dismissed);
-    } catch {
-      setOpen(true);
-    }
+    // Always closed by default. Users open it on demand.
+    setOpen(false);
     setHydrated(true);
   }, []);
 

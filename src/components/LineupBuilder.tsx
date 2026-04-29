@@ -46,6 +46,18 @@ export default function LineupBuilder({
   // page (roster at top → field below) is essentially unusable.
   const [selectedPlayerId, setSelectedPlayerId] = useState<string | null>(null);
 
+  // On phones, use the spread-out POSITIONS_PRINT layout so the infielder
+  // circles don't overlap. Defaults to desktop on SSR, then hydrates correctly.
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 640px)");
+    const update = () => setIsMobile(mq.matches);
+    update();
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
+  }, []);
+  const fieldPositions = isMobile ? POSITIONS_PRINT : POSITIONS;
+
   const supabase = useRef(createClient()).current;
   const isFirstRender = useRef(true);
 
@@ -599,7 +611,7 @@ export default function LineupBuilder({
                 <line x1="50" y1="79" x2="95" y2="34" stroke="#fff" strokeWidth=".4" />
               </svg>
 
-              {POSITIONS.map((pos) => {
+              {fieldPositions.map((pos) => {
                 const playerId = lineup[pos.id];
                 const player = getPlayer(playerId);
                 const isOver = dragOverPos === pos.id;
