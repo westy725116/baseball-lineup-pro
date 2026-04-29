@@ -41,6 +41,10 @@ export default function LineupBuilder({
   const [dragOverBat, setDragOverBat] = useState<number | null>(null);
   const [dragOverPitch, setDragOverPitch] = useState<number | null>(null);
   const [rosterMsg, setRosterMsg] = useState<string | null>(null);
+  // Tap-to-place: one tap selects a player, next tap places them on a slot.
+  // Works alongside drag-drop. Critical for mobile where dragging across the
+  // page (roster at top → field below) is essentially unusable.
+  const [selectedPlayerId, setSelectedPlayerId] = useState<string | null>(null);
 
   const supabase = useRef(createClient()).current;
   const isFirstRender = useRef(true);
@@ -289,6 +293,37 @@ export default function LineupBuilder({
     setTimeout(() => setRosterMsg(null), 3000);
   };
 
+  // ---- Tap-to-place handlers ----
+  const togglePlayerSelection = (playerId: string) => {
+    setSelectedPlayerId((prev) => (prev === playerId ? null : playerId));
+  };
+  const handleSlotTap = (posId: string) => {
+    if (selectedPlayerId) {
+      assignPlayerToPosition(selectedPlayerId, posId, null);
+      setSelectedPlayerId(null);
+    } else {
+      // No selection? Tapping a filled slot picks up that player so you can move them.
+      const placed = currentLineup()[posId];
+      if (placed) setSelectedPlayerId(placed);
+    }
+  };
+  const handleBattingSlotTap = (idx: number) => {
+    if (selectedPlayerId) {
+      placeInBattingSlot(selectedPlayerId, idx);
+      setSelectedPlayerId(null);
+    }
+  };
+  const handlePitcherListTap = () => {
+    if (selectedPlayerId) {
+      addPitcher(selectedPlayerId);
+      setSelectedPlayerId(null);
+    }
+  };
+
+  const selectedPlayer = selectedPlayerId
+    ? data.players.find((p) => p.id === selectedPlayerId)
+    : null;
+
   const autoFillBattingOrder = () => {
     const lineup = currentLineup();
     const fielded = POSITIONS.map((p) => lineup[p.id]).filter(Boolean) as string[];
@@ -323,6 +358,22 @@ export default function LineupBuilder({
   return (
     <>
       <div className={styles.screenOnly}>
+        {selectedPlayer && (
+          <div className="sticky top-0 z-30 mb-3 px-3 py-2 bg-blue-600 text-white rounded shadow-lg flex items-center justify-between gap-3">
+            <span className="text-sm">
+              <strong>{selectedPlayer.name}</strong> selected — tap a position
+              or batting slot
+            </span>
+            <button
+              type="button"
+              onClick={() => setSelectedPlayerId(null)}
+              className="px-2 py-1 text-xs font-semibold bg-blue-700 hover:bg-blue-800 rounded"
+            >
+              Cancel
+            </button>
+          </div>
+        )}
+
         <div className="flex items-center gap-3 mb-3">
           <button
             onClick={() => window.print()}
@@ -403,10 +454,12 @@ export default function LineupBuilder({
             <ul className={styles.rosterList}>
               {data.players.map((p) => {
                 const placed = getPlayerPosition(p.id);
+                const isSelected = selectedPlayerId === p.id;
                 return (
                   <li
                     key={p.id}
-                    className={`${styles.player} ${placed ? styles.placed : ""}`}
+                    onClick={() => togglePlayerSelection(p.id)}
+                    className={`${styles.player} ${placed ? styles.placed : ""} ${isSelected ? styles.selected : ""}`}
                     draggable
                     onDragStart={(e) => {
                       e.dataTransfer.setData("text/player-id", p.id);
@@ -421,7 +474,10 @@ export default function LineupBuilder({
                     {placed && <span className={styles.posTag}>{placed}</span>}
                     <span
                       className={styles.removeX}
-                      onClick={() => removePlayer(p.id)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        removePlayer(p.id);
+                      }}
                       title="Remove from roster"
                     >
                       ×
@@ -432,6 +488,12 @@ export default function LineupBuilder({
             </ul>
             {data.players.length === 0 && (
               <p className={styles.hint}>Add players to get started.</p>
+            )}
+            {data.players.length > 0 && (
+              <p className={styles.hint}>
+                Tap a player to select, then tap a position. Drag also works on
+                desktop.
+              </p>
             )}
           </section>
 
@@ -541,10 +603,12 @@ export default function LineupBuilder({
                 const playerId = lineup[pos.id];
                 const player = getPlayer(playerId);
                 const isOver = dragOverPos === pos.id;
+                const isTapTarget = !!selectedPlayerId;
                 return (
                   <div
                     key={pos.id}
-                    className={`${styles.slot} ${player ? styles.slotFilled : ""} ${isOver ? styles.slotOver : ""}`}
+                    onClick={() => handleSlotTap(pos.id)}
+                    className={`${styles.slot} ${player ? styles.slotFilled : ""} ${isOver || isTapTarget ? styles.slotOver : ""}`}
                     style={{ left: `${pos.x}%`, top: `${pos.y}%` }}
                     draggable={!!player}
                     onDragStart={
@@ -619,7 +683,8 @@ export default function LineupBuilder({
                 return (
                   <li
                     key={i}
-                    className={`${styles.batItem} ${player ? "" : styles.empty} ${isOver ? styles.over : ""}`}
+                    onClick={() => handleBattingSlotTap(i)}
+                    className={`${styles.batItem} ${player ? "" : styles.empty} ${isOver || (selectedPlayerId && !player) ? styles.over : ""}`}
                     draggable={!!player}
                     onDragStart={
                       player
@@ -689,6 +754,10 @@ export default function LineupBuilder({
             </h2>
             <ol
               className={styles.battingList}
+              onClick={() => {
+                // Allow tap-to-add when the list is empty (the row below is the only target)
+                if (data.pitchers.length === 0) handlePitcherListTap();
+              }}
               onDragOver={(e) => {
                 if (data.pitchers.length === 0) {
                   e.preventDefault();
@@ -764,10 +833,20 @@ export default function LineupBuilder({
               })}
               {data.pitchers.length === 0 && (
                 <li className={`${styles.batItem} ${styles.empty}`}>
-                  Drag a player here to set the starter
+                  {selectedPlayerId
+                    ? "Tap here to set as starter"
+                    : "Drag (or tap-select) a player to set the starter"}
                 </li>
               )}
             </ol>
+            {selectedPlayer && data.pitchers.length > 0 && (
+              <button
+                onClick={handlePitcherListTap}
+                className="mt-2 w-full border border-blue-300 rounded bg-blue-50 hover:bg-blue-100 text-sm font-semibold text-blue-800 py-2"
+              >
+                + Add {selectedPlayer.name} as Reliever {data.pitchers.length}
+              </button>
+            )}
           </section>
           </div>
         </div>

@@ -61,6 +61,17 @@
 /* "Placed" players are still readable — just a quieter color, not opacity */
 .player.placed { color: #78716c; font-style: italic; }
 .player.placed .name { text-decoration: line-through; text-decoration-color: #d1d5db; }
+.player.selected {
+  background: #dbeafe;
+  border-color: #1d4ed8;
+  border-width: 2px;
+  padding: 7px 9px; /* compensate for thicker border */
+  color: #1e3a8a;
+  font-weight: 600;
+  font-style: normal;
+  box-shadow: 0 0 0 2px rgba(29, 78, 216, .15);
+}
+.player.selected.placed .name { text-decoration: none; }
 .player .name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .posTag {
   font-size: 10px;
