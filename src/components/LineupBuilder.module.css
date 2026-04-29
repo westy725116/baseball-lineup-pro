@@ -94,10 +94,29 @@
 /* ---------- Field ---------- */
 .fieldHeader { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; }
 .fieldHeader h2 { white-space: nowrap; margin: 0; font-size: 12px; text-transform: uppercase; letter-spacing: .8px; color: #6b7280; font-weight: 700; }
-.inningTabs { display: flex; gap: 4px; flex: 1; flex-wrap: wrap; }
+.inningTabs {
+  display: flex;
+  gap: 4px;
+  flex: 1;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+}
+.inningTabs::-webkit-scrollbar { height: 4px; }
+.inningTabs::-webkit-scrollbar-thumb { background: #d4d4d8; border-radius: 2px; }
+
+/* On narrow screens, give the inning tabs their own row (full width)
+   so they lay out left-to-right with plenty of room. */
+@media (max-width: 640px) {
+  .fieldHeader { gap: 8px; }
+  .inningTabs { flex: 1 1 100%; order: 3; padding-bottom: 4px; }
+  .inningActions { margin-left: auto; }
+}
 .inningTab {
   width: 36px;
   height: 36px;
+  flex-shrink: 0;
   border: 1px solid #d1d5db;
   background: #fff;
   border-radius: 6px;
