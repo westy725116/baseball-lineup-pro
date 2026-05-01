@@ -794,11 +794,11 @@ export default function LineupBuilder({
                       assignPlayerToPosition(playerId, pos.id, fromPosition || null);
                     }}
                   >
-                    <div className="pos">{pos.id}</div>
                     {player ? (
                       <>
                         {!hasPhoto && <PlayerSilhouette />}
-                        <div className="who">{player.name}</div>
+                        <div className={styles.posPill}>{pos.id}</div>
+                        <div className={styles.whoPill}>{player.name}</div>
                         <div
                           className="clear"
                           onClick={(e) => {
@@ -811,7 +811,10 @@ export default function LineupBuilder({
                         </div>
                       </>
                     ) : (
-                      <div className="label">{pos.label}</div>
+                      <>
+                        <div className="pos">{pos.id}</div>
+                        <div className="label">{pos.label}</div>
+                      </>
                     )}
                   </div>
                 );
