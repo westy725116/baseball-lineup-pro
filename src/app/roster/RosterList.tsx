@@ -76,6 +76,15 @@ export default function RosterList({
   }
 
   async function handleDelete(id: string) {
+    const player = players.find((p) => p.id === id);
+    const name = player?.name || "this player";
+    if (
+      !confirm(
+        `Remove ${name} from your team roster?\n\nThis won't change past games — they'll still appear there. But future games won't pull them in via "Load roster".`
+      )
+    ) {
+      return;
+    }
     setPlayers((prev) => prev.filter((p) => p.id !== id));
     const fd = new FormData();
     fd.set("id", id);

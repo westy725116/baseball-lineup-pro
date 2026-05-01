@@ -60,6 +60,35 @@ export default function LineupBuilder({
     }
   }, [data.currentInning, visibleInningCap]);
 
+  // Sync the latest photos from the team roster into this game's inline players
+  // (so a photo uploaded after this game's roster was loaded shows up).
+  useEffect(() => {
+    if (!teamId) return;
+    let cancelled = false;
+    (async () => {
+      const { data: tp } = await supabase
+        .from("team_players")
+        .select("id, photo_url, name")
+        .eq("team_id", teamId);
+      if (cancelled || !tp) return;
+      const photoByTpId = new Map(tp.map((t) => [t.id, t.photo_url]));
+      setData((prev) => {
+        let changed = false;
+        const players = prev.players.map((p) => {
+          if (!p.team_player_id || !photoByTpId.has(p.team_player_id)) return p;
+          const fresh = photoByTpId.get(p.team_player_id) ?? undefined;
+          if (fresh === p.photo_url) return p;
+          changed = true;
+          return { ...p, photo_url: fresh };
+        });
+        return changed ? { ...prev, players } : prev;
+      });
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [teamId, supabase]);
+
   // Persist to Supabase whenever data changes (debounced)
   useEffect(() => {
     if (isFirstRender.current) {
@@ -106,6 +135,15 @@ export default function LineupBuilder({
   };
 
   const removePlayer = (id: string) => {
+    const player = data.players.find((p) => p.id === id);
+    const name = player?.name || "this player";
+    if (
+      !confirm(
+        `Remove ${name} from this game's roster?\n\nThey'll be removed from any positions they're playing and from the batting order in this game. They stay on your team roster.`
+      )
+    ) {
+      return;
+    }
     const lineups: typeof data.lineups = {};
     for (let i = 1; i <= MAX_INNINGS; i++) {
       const inn = { ...data.lineups[i] };
@@ -759,6 +797,11 @@ export default function LineupBuilder({
                     <div className="pos">{pos.id}</div>
                     {player ? (
                       <>
+                        {!hasPhoto && (
+                          <div className="initials">
+                            {playerInitials(player.name)}
+                          </div>
+                        )}
                         <div className="who">{player.name}</div>
                         <div
                           className="clear"
@@ -1113,6 +1156,13 @@ function SummaryTable({ data, cap }: { data: LineupData; cap: number }) {
       </tbody>
     </table>
   );
+}
+
+function playerInitials(name: string): string {
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return "?";
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
 }
 
 function positionInInning(

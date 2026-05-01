@@ -168,53 +168,7 @@ export default async function GamesPage({
       )}
 
       {games && games.length > 0 ? (
-        <ul className="space-y-2">
-          {games.map((g) => (
-            <li
-              key={g.id}
-              className="bg-white border border-stone-200 rounded-lg p-4 flex items-center justify-between hover:shadow-sm"
-            >
-              <Link href={`/games/${g.id}`} className="flex-1 min-w-0">
-                <div className="font-semibold">
-                  {g.home_team} <span className="text-stone-400">vs</span>{" "}
-                  {g.away_team}
-                </div>
-                <div className="text-xs text-stone-500 mt-0.5">
-                  {new Date(g.game_date).toLocaleDateString(undefined, {
-                    weekday: "short",
-                    month: "short",
-                    day: "numeric",
-                    year: "numeric",
-                  })}
-                  {g.location ? ` • ${g.location}` : ""}
-                  {g.home_score != null && g.away_score != null
-                    ? ` • Final: ${g.home_score}–${g.away_score}`
-                    : ""}
-                </div>
-              </Link>
-              <form action={copyGame}>
-                <input type="hidden" name="id" value={g.id} />
-                <button
-                  className="text-stone-400 hover:text-blue-600 text-sm px-2"
-                  title="Duplicate this game (same lineup + roster, today's date)"
-                  type="submit"
-                >
-                  ⧉
-                </button>
-              </form>
-              <form action={deleteGame}>
-                <input type="hidden" name="id" value={g.id} />
-                <button
-                  className="text-stone-400 hover:text-red-600 text-sm px-2"
-                  title="Delete game"
-                  type="submit"
-                >
-                  ✕
-                </button>
-              </form>
-            </li>
-          ))}
-        </ul>
+        <GamesByYear games={games} />
       ) : !error ? (
         <div className="bg-white border border-dashed border-stone-300 rounded-lg p-8 text-center text-stone-500">
           <p className="mb-3">No games yet.</p>
@@ -226,6 +180,106 @@ export default async function GamesPage({
           </Link>
         </div>
       ) : null}
+    </div>
+  );
+}
+
+type GameRow = {
+  id: string;
+  home_team: string;
+  away_team: string;
+  game_date: string;
+  location: string | null;
+  home_score: number | null;
+  away_score: number | null;
+};
+
+function GamesByYear({ games }: { games: GameRow[] }) {
+  // Group by calendar year of the game date, newest first.
+  // Default-open the current year; older years collapse to one line.
+  const currentYear = new Date().getFullYear();
+  const groups = new Map<number, GameRow[]>();
+  for (const g of games) {
+    const y = new Date(g.game_date).getUTCFullYear();
+    if (!groups.has(y)) groups.set(y, []);
+    groups.get(y)!.push(g);
+  }
+  const sortedYears = [...groups.keys()].sort((a, b) => b - a);
+
+  return (
+    <div className="space-y-3">
+      {sortedYears.map((year) => {
+        const list = groups.get(year)!;
+        return (
+          <details
+            key={year}
+            open={year === currentYear || sortedYears.length === 1}
+            className="bg-stone-50 border border-stone-200 rounded-lg overflow-hidden group"
+          >
+            <summary className="cursor-pointer select-none px-4 py-2 flex items-center justify-between bg-white hover:bg-stone-50 font-semibold text-sm">
+              <span>
+                {year}{" "}
+                <span className="text-stone-500 font-normal">
+                  ({list.length} game{list.length === 1 ? "" : "s"})
+                </span>
+              </span>
+              <span className="text-stone-400 text-xs group-open:hidden">
+                ▾
+              </span>
+              <span className="text-stone-400 text-xs hidden group-open:inline">
+                ▴
+              </span>
+            </summary>
+            <ul className="space-y-2 p-3">
+              {list.map((g) => (
+                <li
+                  key={g.id}
+                  className="bg-white border border-stone-200 rounded-lg p-4 flex items-center justify-between hover:shadow-sm"
+                >
+                  <Link href={`/games/${g.id}`} className="flex-1 min-w-0">
+                    <div className="font-semibold">
+                      {g.home_team}{" "}
+                      <span className="text-stone-400">vs</span> {g.away_team}
+                    </div>
+                    <div className="text-xs text-stone-500 mt-0.5">
+                      {new Date(g.game_date).toLocaleDateString(undefined, {
+                        weekday: "short",
+                        month: "short",
+                        day: "numeric",
+                        year: "numeric",
+                      })}
+                      {g.location ? ` • ${g.location}` : ""}
+                      {g.home_score != null && g.away_score != null
+                        ? ` • Final: ${g.home_score}–${g.away_score}`
+                        : ""}
+                    </div>
+                  </Link>
+                  <form action={copyGame}>
+                    <input type="hidden" name="id" value={g.id} />
+                    <button
+                      className="text-stone-400 hover:text-blue-600 text-sm px-2"
+                      title="Duplicate this game (same lineup + roster, today's date)"
+                      type="submit"
+                    >
+                      ⧉
+                    </button>
+                  </form>
+                  <form action={deleteGame}>
+                    <input type="hidden" name="id" value={g.id} />
+                    <button
+                      className="text-stone-400 hover:text-red-600 text-sm px-2"
+                      title="Delete game"
+                      type="submit"
+                    >
+                      ✕
+                    </button>
+                  </form>
+                </li>
+              ))}
+            </ul>
+          </details>
+        );
+      })}
     </div>
   );
 }
