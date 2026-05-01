@@ -30,7 +30,7 @@ export const POSITIONS_PRINT: Position[] = [
   { id: "3B", label: "Third Base", x: 18, y: 68 },
   { id: "1B", label: "First Base", x: 82, y: 68 },
   { id: "P", label: "Pitcher", x: 50, y: 66 },
-  { id: "C", label: "Catcher", x: 50, y: 86 },
+  { id: "C", label: "Catcher", x: 50, y: 82 },
 ];
 
 export const DEFAULT_INNINGS = 6;
