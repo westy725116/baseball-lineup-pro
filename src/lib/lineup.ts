@@ -44,6 +44,7 @@ export type Player = {
   id: string;
   name: string;
   team_player_id?: string; // links a game's player to the user's reusable roster
+  photo_url?: string;
 };
 export type InningLineup = Record<string, string>; // positionId -> playerId
 export type LineupData = {
@@ -99,6 +100,9 @@ export function normalize(raw: unknown): LineupData {
         name: p.name,
         ...(typeof p.team_player_id === "string"
           ? { team_player_id: p.team_player_id }
+          : {}),
+        ...(typeof p.photo_url === "string"
+          ? { photo_url: p.photo_url }
           : {}),
       }));
   }

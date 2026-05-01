@@ -205,7 +205,7 @@ export default function LineupBuilder({
     setRosterMsg("Loading…");
     const baseQuery = supabase
       .from("team_players")
-      .select("id, name")
+      .select("id, name, photo_url")
       .order("sort_order")
       .order("name");
     const { data: tp, error } = teamId
@@ -231,7 +231,12 @@ export default function LineupBuilder({
           !existingByTpId.has(t.id) &&
           !existingByName.has(t.name.trim().toLowerCase())
       )
-      .map((t) => ({ id: uid(), name: t.name, team_player_id: t.id }));
+      .map((t) => ({
+        id: uid(),
+        name: t.name,
+        team_player_id: t.id,
+        ...(t.photo_url ? { photo_url: t.photo_url } : {}),
+      }));
     if (toAdd.length === 0) {
       setRosterMsg("Roster already loaded.");
       return;
@@ -560,6 +565,18 @@ export default function LineupBuilder({
                       e.currentTarget.classList.remove(styles.dragging)
                     }
                   >
+                    {p.photo_url ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={p.photo_url}
+                        alt=""
+                        className={styles.playerPhoto}
+                      />
+                    ) : (
+                      <span className={styles.playerInitial}>
+                        {p.name.slice(0, 1).toUpperCase()}
+                      </span>
+                    )}
                     <span className={styles.name}>{p.name}</span>
                     {placed && <span className={styles.posTag}>{placed}</span>}
                     <span

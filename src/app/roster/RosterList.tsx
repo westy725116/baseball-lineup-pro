@@ -7,7 +7,9 @@ import {
   deleteTeamPlayer,
   updateTeamPlayer,
   updateTeamPlayerExtras,
+  setPlayerPhotoUrl,
 } from "./actions";
+import { createClient } from "@/lib/supabase/client";
 
 const ALL_POSITIONS = ["P", "C", "1B", "2B", "3B", "SS", "LF", "CF", "RF"] as const;
 
@@ -123,6 +125,16 @@ export default function RosterList({
     );
   }
 
+  async function handleSetPhoto(p: Player, photoUrl: string | null) {
+    const fd = new FormData();
+    fd.set("id", p.id);
+    if (photoUrl) fd.set("photo_url", photoUrl);
+    await setPlayerPhotoUrl(fd);
+    setPlayers((prev) =>
+      prev.map((x) => (x.id === p.id ? { ...x, photo_url: photoUrl } : x))
+    );
+  }
+
   return (
     <div>
       <section className="bg-white border border-stone-200 rounded-lg p-5 mb-4">
@@ -162,8 +174,9 @@ export default function RosterList({
 
       {players.length > 0 && (
         <p className="text-xs text-stone-500 mb-2 px-1">
-          Drag the ⋮⋮ handle to reorder. Click ▾ to expand a player and set
-          notes + position preferences.
+          Drag the ⋮⋮ handle to reorder. Click <strong>Notes &amp;
+          positions</strong> to add a photo, notes, or preferred positions for
+          smart auto-fill.
         </p>
       )}
 
@@ -195,6 +208,7 @@ export default function RosterList({
             onSaveExtras={(notes, pref, avoid) =>
               handleSaveExtras(p, notes, pref, avoid)
             }
+            onSetPhoto={(url) => handleSetPhoto(p, url)}
             onDelete={() => handleDelete(p.id)}
           />
         ))}
@@ -214,6 +228,7 @@ function PlayerRow({
   onDropRow,
   onSave,
   onSaveExtras,
+  onSetPhoto,
   onDelete,
 }: {
   player: Player;
@@ -226,6 +241,7 @@ function PlayerRow({
   onDropRow: (fromId: string) => void;
   onSave: (name: string, jersey: string) => void;
   onSaveExtras: (notes: string, preferred: string[], avoid: string[]) => void;
+  onSetPhoto: (url: string | null) => void;
   onDelete: () => void;
 }) {
   const [draftName, setDraftName] = useState(player.name);
@@ -236,6 +252,7 @@ function PlayerRow({
     player.preferred_positions
   );
   const [draftAvoid, setDraftAvoid] = useState<string[]>(player.avoid_positions);
+  const [photoStatus, setPhotoStatus] = useState<string | null>(null);
 
   const isDirty =
     draftName.trim() !== player.name ||
@@ -250,7 +267,6 @@ function PlayerRow({
     setDraftPreferred((cur) =>
       cur.includes(pos) ? cur.filter((p) => p !== pos) : [...cur, pos]
     );
-    // Can't be both preferred and avoided
     setDraftAvoid((cur) => cur.filter((p) => p !== pos));
   }
   function toggleAvoid(pos: string) {
@@ -259,6 +275,58 @@ function PlayerRow({
     );
     setDraftPreferred((cur) => cur.filter((p) => p !== pos));
   }
+
+  async function handlePhotoFile(file: File) {
+    if (!file.type.startsWith("image/")) {
+      setPhotoStatus("Please pick an image file.");
+      return;
+    }
+    if (file.size > 3 * 1024 * 1024) {
+      setPhotoStatus("File too large (max 3 MB).");
+      return;
+    }
+    setPhotoStatus("Uploading…");
+    try {
+      const sb = createClient();
+      const {
+        data: { user },
+      } = await sb.auth.getUser();
+      if (!user) {
+        setPhotoStatus("Not signed in.");
+        return;
+      }
+      // Stable per-player path so re-uploads replace the old photo
+      const ext = (file.name.split(".").pop() || "jpg").toLowerCase();
+      const path = `${user.id}/${player.id}.${ext}`;
+      const { error: upErr } = await sb.storage
+        .from("player-photos")
+        .upload(path, file, { upsert: true, contentType: file.type });
+      if (upErr) {
+        setPhotoStatus(`Upload failed: ${upErr.message}`);
+        return;
+      }
+      // Cache-bust by appending the timestamp so the new image shows immediately
+      const { data: urlData } = sb.storage
+        .from("player-photos")
+        .getPublicUrl(path);
+      const finalUrl = `${urlData.publicUrl}?t=${Date.now()}`;
+      await onSetPhoto(finalUrl);
+      setPhotoStatus("✓ Saved");
+      setTimeout(() => setPhotoStatus(null), 2000);
+    } catch (e) {
+      setPhotoStatus(`Error: ${(e as Error).message}`);
+    }
+  }
+
+  async function handleRemovePhoto() {
+    await onSetPhoto(null);
+  }
+
+  // Indicators when collapsed
+  const hasNotes = !!(player.notes && player.notes.trim().length > 0);
+  const hasPrefs =
+    player.preferred_positions.length + player.avoid_positions.length > 0;
+  const hasPhoto = !!player.photo_url;
 
   return (
     <li
@@ -277,7 +345,7 @@ function PlayerRow({
         isDragOver ? "border-blue-500 ring-2 ring-blue-100" : "border-stone-200"
       } ${isDragging ? "opacity-40" : ""}`}
     >
-      <div className="p-3 flex items-center gap-3">
+      <div className="p-3 flex items-center gap-3 flex-wrap">
         <span
           draggable
           onDragStart={(e) => {
@@ -291,6 +359,22 @@ function PlayerRow({
         >
           ⋮⋮
         </span>
+        {/* Avatar / placeholder */}
+        {player.photo_url ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={player.photo_url}
+            alt={player.name}
+            className="w-10 h-10 rounded-full object-cover border border-stone-300"
+          />
+        ) : (
+          <div
+            className="w-10 h-10 rounded-full border border-stone-200 bg-stone-100 flex items-center justify-center text-xs font-bold text-stone-500"
+            title="No photo yet"
+          >
+            {player.name.slice(0, 1).toUpperCase()}
+          </div>
+        )}
         <input
           value={draftJersey}
           onChange={(e) => setDraftJersey(e.target.value)}
@@ -306,7 +390,7 @@ function PlayerRow({
               onSave(draftName, draftJersey);
             }
           }}
-          className="flex-1 px-2 py-1 border border-stone-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="flex-1 min-w-[120px] px-2 py-1 border border-stone-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
         {isDirty && (
           <button
@@ -321,12 +405,22 @@ function PlayerRow({
         <button
           type="button"
           onClick={() => setExpanded((v) => !v)}
-          className="text-stone-500 hover:text-stone-800 text-sm px-2"
-          title={expanded ? "Collapse" : "Expand"}
+          className={`text-xs font-semibold rounded px-3 py-1.5 border ${
+            expanded
+              ? "bg-stone-900 text-white border-stone-900"
+              : "bg-white text-stone-700 border-stone-300 hover:bg-stone-100"
+          }`}
           aria-expanded={expanded}
         >
-          {expanded ? "▴" : "▾"}
+          Notes &amp; positions {expanded ? "▴" : "▾"}
         </button>
+        {!expanded && (hasNotes || hasPrefs || hasPhoto) && (
+          <span className="text-[10px] text-stone-500 flex gap-1">
+            {hasPhoto && <span title="Has photo">📷</span>}
+            {hasNotes && <span title="Has notes">📝</span>}
+            {hasPrefs && <span title="Has position prefs">⭐</span>}
+          </span>
+        )}
         <button
           type="button"
           onClick={onDelete}
@@ -338,7 +432,56 @@ function PlayerRow({
       </div>
 
       {expanded && (
-        <div className="border-t border-stone-100 p-3 space-y-3 bg-stone-50">
+        <div className="border-t border-stone-100 p-4 space-y-4 bg-stone-50">
+          {/* Photo */}
+          <div>
+            <label className="block text-xs font-semibold text-stone-600 mb-2 uppercase tracking-wider">
+              Photo
+            </label>
+            <div className="flex items-center gap-3">
+              {player.photo_url ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={player.photo_url}
+                  alt={player.name}
+                  className="w-20 h-20 rounded-full object-cover border-2 border-stone-300"
+                />
+              ) : (
+                <div className="w-20 h-20 rounded-full border-2 border-dashed border-stone-300 bg-white flex items-center justify-center text-stone-400 text-xs">
+                  No photo
+                </div>
+              )}
+              <div className="flex flex-col gap-2">
+                <label className="cursor-pointer px-3 py-1.5 text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded inline-block">
+                  {player.photo_url ? "Replace photo" : "Upload photo"}
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={(e) => {
+                      const f = e.target.files?.[0];
+                      if (f) handlePhotoFile(f);
+                      e.target.value = ""; // allow re-selecting same file
+                    }}
+                  />
+                </label>
+                {player.photo_url && (
+                  <button
+                    type="button"
+                    onClick={handleRemovePhoto}
+                    className="px-3 py-1.5 text-xs font-semibold text-red-700 border border-red-200 rounded hover:bg-red-50"
+                  >
+                    Remove
+                  </button>
+                )}
+                {photoStatus && (
+                  <span className="text-xs text-stone-600">{photoStatus}</span>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Notes */}
           <div>
             <label className="block text-xs font-semibold text-stone-600 mb-1 uppercase tracking-wider">
               Coach&apos;s notes
@@ -353,9 +496,13 @@ function PlayerRow({
             />
           </div>
 
+          {/* Preferred positions */}
           <div>
             <label className="block text-xs font-semibold text-stone-600 mb-1 uppercase tracking-wider">
               Preferred / strong positions
+              <span className="ml-1 text-[10px] text-stone-400 font-normal normal-case tracking-normal">
+                (smart auto-fill picks these first)
+              </span>
             </label>
             <div className="flex flex-wrap gap-1.5">
               {ALL_POSITIONS.map((pos) => {
@@ -378,6 +525,7 @@ function PlayerRow({
             </div>
           </div>
 
+          {/* Avoid */}
           <div>
             <label className="block text-xs font-semibold text-stone-600 mb-1 uppercase tracking-wider">
               Avoid (won&apos;t play)

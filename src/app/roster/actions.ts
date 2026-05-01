@@ -110,3 +110,13 @@ export async function updateTeamPlayerExtras(formData: FormData) {
     .eq("id", id);
   revalidatePath("/roster");
 }
+
+// Updates just a player's photo URL (called after a Supabase Storage upload).
+export async function setPlayerPhotoUrl(formData: FormData) {
+  const id = formData.get("id") as string;
+  const photoUrl = (formData.get("photo_url") as string) || null;
+  if (!id) return;
+  const supabase = await createClient();
+  await supabase.from("team_players").update({ photo_url: photoUrl }).eq("id", id);
+  revalidatePath("/roster");
+}
