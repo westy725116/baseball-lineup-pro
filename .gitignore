@@ -24,6 +24,12 @@
 .DS_Store
 *.pem
 
+# design source files (keep exports like .png/.webp/.svg in /public)
+*.ai
+*.psd
+*.sketch
+*.fig
+
 # debug
 npm-debug.log*
 yarn-debug.log*
