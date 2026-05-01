@@ -19,21 +19,18 @@ export const POSITIONS: Position[] = [
   { id: "RF", label: "Right Field", x: 78, y: 30 },
 ];
 
-// Same positions, spread to keep circles from overlapping in narrower
-// fields. Used on the on-screen field, the print mini-fields, and share view.
+// Spread to keep slot circles + pills from overlapping. Used on the
+// on-screen field, the print mini-fields, and the share view.
 export const POSITIONS_PRINT: Position[] = [
-  { id: "P", label: "Pitcher", x: 50, y: 70 },
-  { id: "C", label: "Catcher", x: 50, y: 92 },
-  // Cornermen pulled toward their actual bases on the diamond
-  { id: "1B", label: "First Base", x: 70, y: 73 },
-  { id: "3B", label: "Third Base", x: 30, y: 73 },
-  // Middle infielders pulled in toward second base, slightly above the dirt
-  { id: "2B", label: "Second Base", x: 59, y: 50 },
-  { id: "SS", label: "Shortstop", x: 41, y: 50 },
-  // Outfield
-  { id: "LF", label: "Left Field", x: 16, y: 24 },
-  { id: "CF", label: "Center Field", x: 50, y: 10 },
-  { id: "RF", label: "Right Field", x: 84, y: 24 },
+  { id: "CF", label: "Center Field", x: 50, y: 8 },
+  { id: "LF", label: "Left Field", x: 14, y: 24 },
+  { id: "RF", label: "Right Field", x: 86, y: 24 },
+  { id: "SS", label: "Shortstop", x: 36, y: 44 },
+  { id: "2B", label: "Second Base", x: 64, y: 44 },
+  { id: "3B", label: "Third Base", x: 18, y: 70 },
+  { id: "1B", label: "First Base", x: 82, y: 70 },
+  { id: "P", label: "Pitcher", x: 50, y: 68 },
+  { id: "C", label: "Catcher", x: 50, y: 94 },
 ];
 
 export const DEFAULT_INNINGS = 6;

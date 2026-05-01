@@ -206,8 +206,8 @@
 .slot {
   position: absolute;
   transform: translate(-50%, -50%);
-  width: 78px;
-  height: 78px;
+  width: 64px;
+  height: 64px;
   border-radius: 50%;
   background: rgba(255,255,255,.18);
   border: 2px dashed rgba(255,255,255,.55);
@@ -226,13 +226,13 @@
 /* Smaller slots on phones so they don't overlap on a narrow field. */
 @media (max-width: 640px) {
   .field .slot {
-    width: 56px;
-    height: 56px;
+    width: 50px;
+    height: 50px;
     font-size: 9px;
   }
-  .field .slot .pos { font-size: 12px; }
+  .field .slot .pos { font-size: 11px; }
   .field .slot .who { font-size: 10px; }
-  .field .slot .clear { width: 16px; height: 16px; line-height: 14px; font-size: 11px; }
+  .field .slot .clear { width: 14px; height: 14px; line-height: 12px; font-size: 10px; }
 }
 .slot:hover { background: rgba(255,255,255,.3); }
 .slotOver { background: rgba(255, 235, 59, .35) !important; border-color: #ffeb3b; transform: translate(-50%, -50%) scale(1.08); }
@@ -268,17 +268,17 @@
   transform: translate(-50%, -55%);
   background: #fff;
   color: #1f2937;
-  border: 2px solid #1f2937;
-  padding: 1px 10px;
+  border: 1.5px solid #1f2937;
+  padding: 0 7px;
   border-radius: 999px;
   font-weight: 800;
-  font-size: 11px;
-  line-height: 1.4;
+  font-size: 10px;
+  line-height: 1.5;
   text-shadow: none;
   white-space: nowrap;
   z-index: 3;
   margin: 0;
-  min-width: 26px;
+  min-width: 22px;
   text-align: center;
 }
 .whoPill {
@@ -288,19 +288,25 @@
   transform: translate(-50%, 55%);
   background: #fff;
   color: #1f2937;
-  border: 2px solid #1f2937;
-  padding: 1px 9px;
+  border: 1.5px solid #1f2937;
+  padding: 0 7px;
   border-radius: 999px;
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 700;
-  line-height: 1.3;
+  line-height: 1.5;
   text-shadow: none;
   white-space: nowrap;
-  max-width: 150%;
+  max-width: 130%;
   overflow: hidden;
   text-overflow: ellipsis;
   z-index: 3;
   margin: 0;
+}
+@media (max-width: 640px) {
+  .posPill, .whoPill {
+    font-size: 9px;
+    padding: 0 5px;
+  }
 }
 .slot.slotFilled .silhouette {
   width: 100%;
