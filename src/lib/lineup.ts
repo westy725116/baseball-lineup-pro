@@ -22,15 +22,15 @@ export const POSITIONS: Position[] = [
 // Spread to keep slot circles + pills from overlapping. Used on the
 // on-screen field, the print mini-fields, and the share view.
 export const POSITIONS_PRINT: Position[] = [
-  { id: "CF", label: "Center Field", x: 50, y: 8 },
-  { id: "LF", label: "Left Field", x: 14, y: 24 },
-  { id: "RF", label: "Right Field", x: 86, y: 24 },
-  { id: "SS", label: "Shortstop", x: 36, y: 44 },
-  { id: "2B", label: "Second Base", x: 64, y: 44 },
-  { id: "3B", label: "Third Base", x: 18, y: 70 },
-  { id: "1B", label: "First Base", x: 82, y: 70 },
-  { id: "P", label: "Pitcher", x: 50, y: 68 },
-  { id: "C", label: "Catcher", x: 50, y: 94 },
+  { id: "CF", label: "Center Field", x: 50, y: 14 },
+  { id: "LF", label: "Left Field", x: 14, y: 28 },
+  { id: "RF", label: "Right Field", x: 86, y: 28 },
+  { id: "SS", label: "Shortstop", x: 36, y: 46 },
+  { id: "2B", label: "Second Base", x: 64, y: 46 },
+  { id: "3B", label: "Third Base", x: 18, y: 68 },
+  { id: "1B", label: "First Base", x: 82, y: 68 },
+  { id: "P", label: "Pitcher", x: 50, y: 66 },
+  { id: "C", label: "Catcher", x: 50, y: 86 },
 ];
 
 export const DEFAULT_INNINGS = 6;
