@@ -29,7 +29,9 @@ export default async function RosterPage({
 
   const { data: players, error } = await supabase
     .from("team_players")
-    .select("id, name, jersey_number, sort_order")
+    .select(
+      "id, name, jersey_number, sort_order, notes, photo_url, preferred_positions, avoid_positions"
+    )
     .eq("team_id", active.id)
     .order("sort_order", { ascending: true })
     .order("name", { ascending: true });
@@ -99,6 +101,10 @@ export default async function RosterPage({
             id: p.id,
             name: p.name,
             jersey_number: p.jersey_number,
+            notes: p.notes ?? "",
+            photo_url: p.photo_url ?? null,
+            preferred_positions: p.preferred_positions ?? [],
+            avoid_positions: p.avoid_positions ?? [],
           }))}
         />
       )}

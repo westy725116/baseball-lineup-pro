@@ -59,6 +59,17 @@ alter table team_players add column if not exists sort_order int default 0;
 -- Tie players to a specific team (nullable for legacy rows; auto-migrated on first visit).
 alter table team_players add column if not exists team_id uuid references teams(id) on delete cascade;
 
+-- Coach's notes about this player (development notes, attendance, eval, etc.)
+alter table team_players add column if not exists notes text;
+
+-- Photo URL (uploaded to Supabase Storage). Public URL stored as-is.
+alter table team_players add column if not exists photo_url text;
+
+-- Position preferences for the smart auto-lineup. Both are arrays of position
+-- IDs (P, C, 1B, 2B, 3B, SS, LF, CF, RF). Empty arrays mean "no preference".
+alter table team_players add column if not exists preferred_positions text[] default '{}';
+alter table team_players add column if not exists avoid_positions text[] default '{}';
+
 create index if not exists team_players_team_id_idx
   on team_players (team_id, sort_order, name);
 
@@ -77,6 +88,9 @@ create policy "Users manage their own team players"
 alter table games add column if not exists team_id uuid references teams(id) on delete set null;
 
 create index if not exists games_team_id_idx on games (team_id, game_date desc);
+
+-- Coach's notes about this game (general, scouting, parents, etc.)
+alter table games add column if not exists notes text;
 
 -- Sharing: a public read-only link per game.
 alter table games add column if not exists share_token text unique;
@@ -123,6 +137,51 @@ create policy "Owner deletes game comments"
 
 -- Anonymous inserts are NOT allowed via RLS — share-link comments go
 -- through a server action that uses the service-role key, gated by token.
+
+-- ============================================================
+-- Storage bucket for player photos (run once in dashboard)
+-- ============================================================
+-- 1. Supabase Dashboard → Storage → New bucket
+-- 2. Name: player-photos
+-- 3. Public bucket: ON  (so we can use direct URLs without signing)
+-- 4. File size limit: 2 MB
+-- 5. Allowed MIME types: image/png, image/jpeg, image/webp
+--
+-- After creating the bucket, run this SQL once to allow authenticated users
+-- to upload photos under their own folder ({user_id}/...):
+
+drop policy if exists "Users upload to their own folder" on storage.objects;
+create policy "Users upload to their own folder"
+  on storage.objects for insert
+  to authenticated
+  with check (
+    bucket_id = 'player-photos'
+    and (storage.foldername(name))[1] = auth.uid()::text
+  );
+
+drop policy if exists "Users update their own photos" on storage.objects;
+create policy "Users update their own photos"
+  on storage.objects for update
+  to authenticated
+  using (
+    bucket_id = 'player-photos'
+    and (storage.foldername(name))[1] = auth.uid()::text
+  );
+
+drop policy if exists "Users delete their own photos" on storage.objects;
+create policy "Users delete their own photos"
+  on storage.objects for delete
+  to authenticated
+  using (
+    bucket_id = 'player-photos'
+    and (storage.foldername(name))[1] = auth.uid()::text
+  );
+
+drop policy if exists "Anyone can view player photos" on storage.objects;
+create policy "Anyone can view player photos"
+  on storage.objects for select
+  to public
+  using (bucket_id = 'player-photos');
 
 -- ============================================================
 -- Subscriptions (Stripe)

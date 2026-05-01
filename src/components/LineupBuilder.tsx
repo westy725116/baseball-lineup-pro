@@ -241,6 +241,92 @@ export default function LineupBuilder({
     setTimeout(() => setRosterMsg(null), 3000);
   };
 
+  // Smart auto-fill the current inning's defense based on each player's
+  // preferred + avoid positions (set on /roster page).
+  const smartAutoFillDefense = async () => {
+    if (!teamId) {
+      setRosterMsg("This game isn't linked to a team yet.");
+      setTimeout(() => setRosterMsg(null), 3000);
+      return;
+    }
+    setRosterMsg("Smart-filling…");
+
+    const { data: tp, error } = await supabase
+      .from("team_players")
+      .select("id, preferred_positions, avoid_positions")
+      .eq("team_id", teamId);
+    if (error || !tp) {
+      setRosterMsg("Failed to fetch team preferences.");
+      setTimeout(() => setRosterMsg(null), 3000);
+      return;
+    }
+
+    // Map team_player_id -> inline player id (only those in the game's roster)
+    const tpMap = new Map<
+      string,
+      { inlineId: string; preferred: string[]; avoid: string[] }
+    >();
+    for (const p of data.players) {
+      if (!p.team_player_id) continue;
+      const meta = tp.find((t) => t.id === p.team_player_id);
+      tpMap.set(p.team_player_id, {
+        inlineId: p.id,
+        preferred: meta?.preferred_positions ?? [],
+        avoid: meta?.avoid_positions ?? [],
+      });
+    }
+
+    if (tpMap.size === 0) {
+      setRosterMsg("No team-linked players in this game. Click ↓ Load roster first.");
+      setTimeout(() => setRosterMsg(null), 4000);
+      return;
+    }
+
+    const candidates = [...tpMap.values()];
+    const newLineup: Record<string, string> = {};
+    const used = new Set<string>();
+
+    // Pass 1: assign each position to a player who PREFERS it.
+    // Pick the most "specialized" candidate (fewest preferred positions)
+    // so versatile players stay available to fill gaps.
+    for (const pos of POSITIONS) {
+      const preferring = candidates.filter(
+        (c) => !used.has(c.inlineId) && c.preferred.includes(pos.id)
+      );
+      if (preferring.length > 0) {
+        preferring.sort((a, b) => a.preferred.length - b.preferred.length);
+        newLineup[pos.id] = preferring[0].inlineId;
+        used.add(preferring[0].inlineId);
+      }
+    }
+
+    // Pass 2: fill any remaining positions with anyone who doesn't AVOID it.
+    let unfilled = 0;
+    for (const pos of POSITIONS) {
+      if (newLineup[pos.id]) continue;
+      const available = candidates.filter(
+        (c) => !used.has(c.inlineId) && !c.avoid.includes(pos.id)
+      );
+      if (available.length > 0) {
+        newLineup[pos.id] = available[0].inlineId;
+        used.add(available[0].inlineId);
+      } else {
+        unfilled++;
+      }
+    }
+
+    setData({
+      ...data,
+      lineups: { ...data.lineups, [data.currentInning]: newLineup },
+    });
+    const note =
+      unfilled > 0
+        ? `Filled inning ${data.currentInning} (${unfilled} positions need coverage — set more preferences in Roster).`
+        : `Smart-filled inning ${data.currentInning}.`;
+    setRosterMsg(note);
+    setTimeout(() => setRosterMsg(null), 4000);
+  };
+
   // Push any roster players that aren't yet linked to a team_player into team_players.
   const saveRosterToTeam = async () => {
     if (!teamId) {
@@ -564,6 +650,13 @@ export default function LineupBuilder({
                 )}
               </div>
               <div className={styles.inningActions}>
+                <button
+                  onClick={smartAutoFillDefense}
+                  className="text-xs font-semibold text-emerald-800 border border-emerald-300 rounded bg-emerald-50 hover:bg-emerald-100 px-2 py-1"
+                  title="Auto-fill positions based on each player's preferred + avoid settings (set in Roster)"
+                >
+                  ✨ Smart fill
+                </button>
                 <button
                   onClick={copyFromPreviousInning}
                   className="text-xs font-semibold text-stone-700 border border-stone-300 rounded bg-white hover:bg-stone-50 px-2 py-1"

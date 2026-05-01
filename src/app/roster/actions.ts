@@ -91,3 +91,22 @@ export async function updateTeamPlayer(formData: FormData) {
     .eq("id", id);
   revalidatePath("/roster");
 }
+
+// Updates the per-player coaching extras: notes + position preferences.
+export async function updateTeamPlayerExtras(formData: FormData) {
+  const id = formData.get("id") as string;
+  if (!id) return;
+  const notes = ((formData.get("notes") as string) || "").trim() || null;
+  const preferred = (formData.getAll("preferred[]") as string[]) || [];
+  const avoid = (formData.getAll("avoid[]") as string[]) || [];
+  const supabase = await createClient();
+  await supabase
+    .from("team_players")
+    .update({
+      notes,
+      preferred_positions: preferred,
+      avoid_positions: avoid,
+    })
+    .eq("id", id);
+  revalidatePath("/roster");
+}

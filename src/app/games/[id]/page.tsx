@@ -6,6 +6,7 @@ import LineupBuilder from "@/components/LineupBuilder";
 import SharePanel from "@/components/SharePanel";
 import EditGameInfo from "@/components/EditGameInfo";
 import HelpPanel from "@/components/HelpPanel";
+import GameNotes from "@/components/GameNotes";
 import { getSubscription, isPro, FREE_INNINGS } from "@/lib/subscription";
 import { listTeamsAndEnsureDefault } from "@/lib/teams";
 import { deleteComment } from "./share-actions";
@@ -140,6 +141,8 @@ export default async function GameDetailPage({
         freeInnings={FREE_INNINGS}
         teamId={game.team_id ?? null}
       />
+
+      <GameNotes gameId={game.id} initial={game.notes ?? ""} />
 
       {comments && comments.length > 0 && (
         <section className="mt-6 bg-white border border-stone-200 rounded-lg p-5 print:hidden">
