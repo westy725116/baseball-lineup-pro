@@ -293,31 +293,6 @@
   -webkit-line-clamp: 1;
 }
 
-/* Filled-no-photo: colored circle with bold name and position badge —
-   the "avatar" fallback when a player doesn't have a photo yet. */
-.slot.slotAvatar {
-  color: #fff;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, .3);
-  border: 2px solid rgba(0, 0, 0, .3);
-}
-.slot.slotAvatar .pos {
-  background: rgba(255, 255, 255, .92);
-  color: #1f2937;
-  padding: 1px 8px;
-  border-radius: 8px;
-  font-size: 11px;
-  font-weight: 800;
-  text-shadow: none;
-  margin: 0 0 2px;
-  line-height: 1.2;
-}
-.slot.slotAvatar .who {
-  font-size: 12px;
-  font-weight: 800;
-  color: #fff;
-  margin-top: 1px;
-  padding: 0 4px;
-}
 .slot .clear {
   position: absolute;
   top: -4px;
