@@ -718,12 +718,22 @@ export default function LineupBuilder({
                 const player = getPlayer(playerId);
                 const isOver = dragOverPos === pos.id;
                 const isTapTarget = !!selectedPlayerId;
+                const hasPhoto = !!player?.photo_url;
+                const isAvatar = !!player && !hasPhoto;
+                const avatarBg = player ? avatarColor(player.team_player_id ?? player.id) : "";
                 return (
                   <div
                     key={pos.id}
                     onClick={() => handleSlotTap(pos.id)}
-                    className={`${styles.slot} ${player ? styles.slotFilled : ""} ${isOver || isTapTarget ? styles.slotOver : ""}`}
-                    style={{ left: `${pos.x}%`, top: `${pos.y}%` }}
+                    className={`${styles.slot} ${player ? styles.slotFilled : ""} ${hasPhoto ? styles.slotPhoto : ""} ${isAvatar ? styles.slotAvatar : ""} ${isOver || isTapTarget ? styles.slotOver : ""}`}
+                    style={{
+                      left: `${pos.x}%`,
+                      top: `${pos.y}%`,
+                      ...(hasPhoto && player?.photo_url
+                        ? { backgroundImage: `url("${player.photo_url}")` }
+                        : {}),
+                      ...(isAvatar ? { backgroundColor: avatarBg } : {}),
+                    }}
                     draggable={!!player}
                     onDragStart={
                       player
@@ -1106,6 +1116,28 @@ function SummaryTable({ data, cap }: { data: LineupData; cap: number }) {
       </tbody>
     </table>
   );
+}
+
+// Pick a stable color per player so each kid keeps the same avatar tint
+// across innings and games.
+const AVATAR_COLORS = [
+  "#dc2626", // red
+  "#2563eb", // blue
+  "#059669", // emerald
+  "#7c3aed", // violet
+  "#ea580c", // orange
+  "#0891b2", // cyan
+  "#be185d", // pink
+  "#65a30d", // lime
+  "#9333ea", // purple
+  "#0d9488", // teal
+];
+function avatarColor(seed: string): string {
+  let hash = 0;
+  for (let i = 0; i < seed.length; i++) {
+    hash = (hash * 31 + seed.charCodeAt(i)) | 0;
+  }
+  return AVATAR_COLORS[Math.abs(hash) % AVATAR_COLORS.length];
 }
 
 function positionInInning(
