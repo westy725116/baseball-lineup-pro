@@ -60,17 +60,9 @@ export default async function LoginPage({
                 />
               </div>
               <div>
-                <div className="flex justify-between items-center mb-1.5">
-                  <label className="block text-xs font-semibold text-stone-600 uppercase tracking-wider">
-                    Password
-                  </label>
-                  <Link
-                    href="/forgot-password"
-                    className="text-xs font-semibold text-red-600 hover:text-red-700"
-                  >
-                    Forgot?
-                  </Link>
-                </div>
+                <label className="block text-xs font-semibold text-stone-600 mb-1.5 uppercase tracking-wider">
+                  Password
+                </label>
                 <input
                   name="password"
                   type="password"
@@ -79,6 +71,14 @@ export default async function LoginPage({
                   autoComplete="current-password"
                   className="w-full px-3 py-2.5 border border-stone-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
                 />
+                <div className="text-right mt-1">
+                  <Link
+                    href="/forgot-password"
+                    className="text-xs font-semibold text-red-600 hover:text-red-700"
+                  >
+                    Forgot password?
+                  </Link>
+                </div>
               </div>
               <button
                 formAction={login}

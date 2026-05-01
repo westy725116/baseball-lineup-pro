@@ -943,15 +943,25 @@ function SummaryTable({ data, cap }: { data: LineupData; cap: number }) {
     );
   }
 
+  // Map playerId -> 1-based batting order spot for the Bat column.
+  const batSpotById = new Map<string, number>();
+  data.battingOrder.forEach((id, i) => {
+    if (id) batSpotById.set(id, i + 1);
+  });
+
   return (
     <table className={styles.summaryTable}>
       <thead>
         <tr>
-          <th className={styles.summaryPlayer}>Player</th>
+          <th className={styles.summaryBat}>Bat</th>
+          <th className={styles.summaryPlayer} style={{ textAlign: "left" }}>
+            Player
+          </th>
           <th>Innings</th>
           {Array.from({ length: inningCount }, (_, k) => k + 1).map((i) => (
             <th key={i}>{i}</th>
           ))}
+          <th className={styles.summaryNotes}>Notes / Swap</th>
         </tr>
       </thead>
       <tbody>
@@ -961,8 +971,12 @@ function SummaryTable({ data, cap }: { data: LineupData; cap: number }) {
             (_, k) => positionInInning(data, p.id, k + 1)
           );
           const playedCount = positionsByInning.filter(Boolean).length;
+          const batSpot = batSpotById.get(p.id);
           return (
             <tr key={p.id}>
+              <td className={styles.summaryBat}>
+                {batSpot ?? <span className="text-stone-300">—</span>}
+              </td>
               <td className={styles.summaryPlayer}>{p.name}</td>
               <td className={styles.summaryCount}>
                 {playedCount}/{inningCount}
@@ -975,6 +989,7 @@ function SummaryTable({ data, cap }: { data: LineupData; cap: number }) {
                   {pos ?? "—"}
                 </td>
               ))}
+              <td className={styles.summaryNotes}></td>
             </tr>
           );
         })}

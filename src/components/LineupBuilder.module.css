@@ -307,6 +307,32 @@
 .summaryBench { color: #cbd5e1; }
 .summaryPos { font-weight: 700; color: #b91c1c; background: #fef2f2; }
 .summaryCount { font-weight: 800; }
+.summaryBat {
+  width: 40px;
+  font-weight: 800;
+  color: #1f2937;
+  background: #f3f4f6;
+}
+.summaryNotes {
+  width: 28%;
+  text-align: left !important;
+  border-left: 1px solid #e5e7eb;
+}
+
+/* Print-specific tracking-sheet styling: taller rows + visible cell borders
+   so coaches can write swaps/notes by hand. The summary starts on its own page
+   so coaches can pull just the tracking grid into the dugout. */
+@media print {
+  .summaryWrap { page-break-before: always; }
+  .summaryTable th, .summaryTable td {
+    padding: 8px 6px;
+    border: 1px solid #cbd5e1 !important;
+    line-height: 1.6;
+  }
+  .summaryTable td.summaryNotes { height: 36px; min-height: 36px; }
+  .summaryTable td.summaryPos { background: #f3f4f6 !important; color: #000 !important; }
+  .summaryTable td.summaryBench { color: #d4d4d8 !important; }
+}
 
 .hint { color: #6b7280; font-size: 12px; margin-top: 8px; }
 
