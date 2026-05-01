@@ -797,11 +797,7 @@ export default function LineupBuilder({
                     <div className="pos">{pos.id}</div>
                     {player ? (
                       <>
-                        {!hasPhoto && (
-                          <div className="initials">
-                            {playerInitials(player.name)}
-                          </div>
-                        )}
+                        {!hasPhoto && <PlayerSilhouette />}
                         <div className="who">{player.name}</div>
                         <div
                           className="clear"
@@ -1158,11 +1154,27 @@ function SummaryTable({ data, cap }: { data: LineupData; cap: number }) {
   );
 }
 
-function playerInitials(name: string): string {
-  const parts = name.trim().split(/\s+/).filter(Boolean);
-  if (parts.length === 0) return "?";
-  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
-  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+// Generic baseball-player silhouette used as the avatar when a player
+// hasn't uploaded a photo yet. Drawn inline so it scales cleanly inside
+// the slot circle.
+function PlayerSilhouette() {
+  return (
+    <svg
+      viewBox="0 0 64 64"
+      className="silhouette"
+      aria-hidden="true"
+      fill="currentColor"
+    >
+      {/* Cap top */}
+      <path d="M16 22 Q16 8 32 8 Q48 8 48 22 L48 24 L16 24 Z" />
+      {/* Cap brim */}
+      <ellipse cx="32" cy="24" rx="22" ry="2.6" />
+      {/* Head */}
+      <circle cx="32" cy="32" r="6" />
+      {/* Shoulders / body */}
+      <path d="M14 50 Q14 42 32 42 Q50 42 50 50 L50 64 L14 64 Z" />
+    </svg>
+  );
 }
 
 function positionInInning(
