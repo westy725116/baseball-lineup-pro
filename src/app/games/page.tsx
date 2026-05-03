@@ -170,15 +170,10 @@ export default async function GamesPage({
 
       {games && games.length > 0 ? (
         <GamesByYear
-          games={games.map((g) => {
-            const teamName = g.team_id
-              ? teams.find((t) => t.id === g.team_id)?.name
-              : null;
-            const isHome =
-              !!teamName &&
-              teamName.trim().toLowerCase() === g.home_team.trim().toLowerCase();
-            return { ...g, isHome };
-          })}
+          games={games.map((g) => ({
+            ...g,
+            isHome: g.is_home ?? true,
+          }))}
         />
       ) : !error ? (
         <div className="bg-white border border-dashed border-stone-300 rounded-lg p-8 text-center text-stone-500">
@@ -209,7 +204,7 @@ type GameRow = {
   location: string | null;
   home_score: number | null;
   away_score: number | null;
-  isHome?: boolean;
+  isHome: boolean;
 };
 
 function GamesByYear({ games }: { games: GameRow[] }) {
@@ -253,15 +248,9 @@ function GamesByYear({ games }: { games: GameRow[] }) {
                 <li
                   key={g.id}
                   className={`border border-stone-200 rounded-lg p-4 flex items-center justify-between hover:shadow-sm ${
-                    g.isHome === false ? "bg-stone-100" : "bg-white"
+                    g.isHome ? "bg-white" : "bg-stone-100"
                   }`}
-                  title={
-                    g.isHome === undefined
-                      ? undefined
-                      : g.isHome
-                        ? "Home game"
-                        : "Away game"
-                  }
+                  title={g.isHome ? "Home game" : "Away game"}
                 >
                   <Link href={`/games/${g.id}`} className="flex-1 min-w-0">
                     <div className="font-semibold flex items-center gap-2">
@@ -270,17 +259,15 @@ function GamesByYear({ games }: { games: GameRow[] }) {
                         <span className="text-stone-400">vs</span>{" "}
                         {g.away_team}
                       </span>
-                      {g.isHome !== undefined && (
-                        <span
-                          className={`text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded ${
-                            g.isHome
-                              ? "bg-emerald-100 text-emerald-800"
-                              : "bg-stone-200 text-stone-600"
-                          }`}
-                        >
-                          {g.isHome ? "Home" : "Away"}
-                        </span>
-                      )}
+                      <span
+                        className={`text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded ${
+                          g.isHome
+                            ? "bg-emerald-100 text-emerald-800"
+                            : "bg-stone-200 text-stone-600"
+                        }`}
+                      >
+                        {g.isHome ? "Home" : "Away"}
+                      </span>
                     </div>
                     <div className="text-xs text-stone-500 mt-0.5">
                       {new Date(g.game_date).toLocaleDateString(undefined, {

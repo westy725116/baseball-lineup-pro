@@ -19,6 +19,7 @@ export async function createGame(formData: FormData) {
     away_team: (formData.get("away_team") as string)?.trim(),
     location: ((formData.get("location") as string) || "").trim() || null,
     game_date: formData.get("game_date") as string,
+    is_home: formData.get("is_home") === "on",
   };
 
   const { data, error } = await supabase
@@ -79,7 +80,7 @@ export async function copyGame(formData: FormData) {
   if (created) redirect(`/games/${created.id}`);
 }
 
-// Edits the metadata on the detail page (teams, date, location, team).
+// Edits the metadata on the detail page (teams, date, location, team, home/away).
 export async function updateGameInfo(formData: FormData) {
   const id = formData.get("id") as string;
   if (!id) return;
@@ -92,6 +93,7 @@ export async function updateGameInfo(formData: FormData) {
       location: ((formData.get("location") as string) || "").trim() || null,
       game_date: formData.get("game_date") as string,
       team_id: ((formData.get("team_id") as string) || "").trim() || null,
+      is_home: formData.get("is_home") === "on",
     })
     .eq("id", id);
   revalidatePath(`/games/${id}`);

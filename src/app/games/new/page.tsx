@@ -115,6 +115,17 @@ export default async function NewGamePage({
             className="w-full px-3 py-2 border border-stone-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
+        <label className="flex items-center gap-2 px-3 py-2 border border-stone-300 rounded bg-stone-50 cursor-pointer">
+          <input
+            name="is_home"
+            type="checkbox"
+            defaultChecked
+            className="w-4 h-4 accent-emerald-600"
+          />
+          <span className="text-sm font-semibold text-stone-700">
+            We&apos;re the home team for this game
+          </span>
+        </label>
         <div className="flex gap-2 pt-2">
           <button
             type="submit"

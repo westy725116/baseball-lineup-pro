@@ -11,6 +11,7 @@ type Game = {
   location: string | null;
   game_date: string;
   team_id: string | null;
+  is_home: boolean;
 };
 
 export default function EditGameInfo({
@@ -109,6 +110,17 @@ export default function EditGameInfo({
                 </select>
               </div>
             )}
+            <label className="sm:col-span-2 flex items-center gap-2 px-3 py-2 border border-stone-300 rounded bg-stone-50 cursor-pointer">
+              <input
+                name="is_home"
+                type="checkbox"
+                defaultChecked={game.is_home}
+                className="w-4 h-4 accent-emerald-600"
+              />
+              <span className="text-sm font-semibold text-stone-700">
+                We&apos;re the home team for this game
+              </span>
+            </label>
           </div>
           <div className="flex gap-2 pt-1">
             <button

@@ -96,6 +96,10 @@ create index if not exists games_team_id_idx on games (team_id, game_date desc);
 -- Coach's notes about this game (general, scouting, parents, etc.)
 alter table games add column if not exists notes text;
 
+-- Whether the coach's team is the home team for this game.
+-- Default true since most games are at your home field.
+alter table games add column if not exists is_home boolean default true;
+
 -- Sharing: a public read-only link per game.
 alter table games add column if not exists share_token text unique;
 alter table games add column if not exists share_enabled boolean default false;

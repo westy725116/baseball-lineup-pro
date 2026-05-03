@@ -84,6 +84,7 @@ export default async function GameDetailPage({
                 location: game.location ?? null,
                 game_date: game.game_date,
                 team_id: game.team_id ?? null,
+                is_home: game.is_home ?? true,
               }}
               teams={teams.map((t) => ({
                 id: t.id,
