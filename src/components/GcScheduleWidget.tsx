@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 // Loads the GameChanger SDK once and renders a team's schedule widget.
 // Documented embed snippet:
@@ -49,9 +49,11 @@ function loadScriptOnce(): Promise<void> {
 }
 
 export default function GcScheduleWidget({ widgetId }: { widgetId: string }) {
-  // Stable per-widget DOM id
-  const targetId = `gc-schedule-${widgetId.replace(/[^a-z0-9]/gi, "").slice(0, 12)}`;
+  // Use the exact ID format from GC's documented embed snippet
+  const shortHash = widgetId.replace(/[^a-z0-9]/gi, "").slice(0, 4);
+  const targetId = `gc-schedule-widget-${shortHash}`;
   const initRef = useRef(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (initRef.current) return;
@@ -61,16 +63,24 @@ export default function GcScheduleWidget({ widgetId }: { widgetId: string }) {
         await loadScriptOnce();
         if (cancelled) return;
         const init = window.GC?.team?.schedule?.init;
-        if (typeof init === "function") {
+        if (typeof init !== "function") {
+          setError(
+            "GameChanger SDK loaded but team.schedule.init isn't available."
+          );
+          return;
+        }
+        try {
           init({
             target: `#${targetId}`,
             widgetId,
             maxVerticalGamesVisible: 4,
           });
           initRef.current = true;
+        } catch (e) {
+          setError(`GC widget error: ${(e as Error).message}`);
         }
       } catch {
-        // Silent — the widget container will just stay empty.
+        setError("Couldn't load the GameChanger SDK script.");
       }
     })();
     return () => {
@@ -91,6 +101,11 @@ export default function GcScheduleWidget({ widgetId }: { widgetId: string }) {
           via gc.com
         </a>
       </div>
+      {error && (
+        <div className="mb-2 p-2 bg-amber-50 border border-amber-200 text-amber-900 text-xs rounded">
+          {error} (Widget ID: <code className="font-mono">{widgetId}</code>)
+        </div>
+      )}
       <div id={targetId} />
     </div>
   );
