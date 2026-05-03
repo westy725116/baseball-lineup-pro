@@ -6,6 +6,7 @@ export type Team = {
   name: string;
   season_year: number | null;
   sort_order: number;
+  gc_widget_id: string | null;
   created_at: string;
 };
 

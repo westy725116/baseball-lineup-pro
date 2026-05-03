@@ -101,31 +101,58 @@ export default async function TeamsPage({
             key={t.id}
             className="bg-white border border-stone-200 rounded-lg p-4"
           >
-            <form
-              action={updateTeam}
-              className="flex items-center gap-2 mb-2"
-            >
+            <form action={updateTeam} className="space-y-2 mb-2">
               <input type="hidden" name="id" value={t.id} />
-              <input
-                name="name"
-                defaultValue={t.name}
-                className="flex-1 px-2 py-1 border border-stone-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 font-semibold"
-              />
-              <input
-                name="season_year"
-                type="number"
-                defaultValue={t.season_year ?? ""}
-                placeholder="Year"
-                min={1900}
-                max={2100}
-                className="w-24 px-2 py-1 border border-stone-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-              <button
-                type="submit"
-                className="text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded px-3 py-1"
-              >
-                Save
-              </button>
+              <div className="flex items-center gap-2">
+                <input
+                  name="name"
+                  defaultValue={t.name}
+                  className="flex-1 px-2 py-1 border border-stone-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 font-semibold"
+                />
+                <input
+                  name="season_year"
+                  type="number"
+                  defaultValue={t.season_year ?? ""}
+                  placeholder="Year"
+                  min={1900}
+                  max={2100}
+                  className="w-24 px-2 py-1 border border-stone-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+                <button
+                  type="submit"
+                  className="text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded px-3 py-1"
+                >
+                  Save
+                </button>
+              </div>
+              <details className="text-xs text-stone-600">
+                <summary className="cursor-pointer select-none hover:text-stone-900">
+                  GameChanger schedule integration{" "}
+                  {t.gc_widget_id && <span className="text-emerald-700">✓ connected</span>}
+                </summary>
+                <div className="mt-2 pl-2 space-y-1">
+                  <input
+                    name="gc_widget_id"
+                    defaultValue={t.gc_widget_id ?? ""}
+                    placeholder="GC schedule widget ID (e.g. b6eb9e18-2a72-4796-…)"
+                    className="w-full px-2 py-1 border border-stone-300 rounded font-mono text-xs focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                  <p className="text-[11px] text-stone-500">
+                    Paste the <code>widgetId</code> from your GameChanger team
+                    schedule embed code. We&apos;ll show the live schedule on
+                    your <strong>Games</strong> page when this team is
+                    selected.{" "}
+                    <a
+                      href="https://gc.com"
+                      target="_blank"
+                      rel="noopener"
+                      className="underline"
+                    >
+                      Find on GC →
+                    </a>
+                  </p>
+                </div>
+              </details>
             </form>
             <div className="flex items-center justify-between text-sm">
               <div className="flex gap-3 text-stone-600">

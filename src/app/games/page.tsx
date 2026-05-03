@@ -6,6 +6,7 @@ import { deleteGame, copyGame } from "./actions";
 import { syncSubscriptionFromStripe, isPro, subStatusLabel } from "@/lib/subscription";
 import { isAdmin } from "@/lib/admin";
 import { listTeamsAndEnsureDefault, pickActiveTeam } from "@/lib/teams";
+import GcScheduleWidget from "@/components/GcScheduleWidget";
 
 type SearchParams = Promise<{ team?: string }>;
 
@@ -137,6 +138,10 @@ export default async function GamesPage({
             </Link>
           ))}
         </div>
+      )}
+
+      {active?.gc_widget_id && (
+        <GcScheduleWidget widgetId={active.gc_widget_id} />
       )}
 
       <div className="flex items-center justify-between mb-4">

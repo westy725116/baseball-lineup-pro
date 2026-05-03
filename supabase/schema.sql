@@ -31,6 +31,10 @@ create table if not exists teams (
   created_at timestamptz default now()
 );
 
+-- Optional GameChanger team schedule widget ID. Coaches paste theirs in
+-- and we render the schedule on /games for that team.
+alter table teams add column if not exists gc_widget_id text;
+
 create index if not exists teams_user_id_idx
   on teams (user_id, sort_order, season_year desc, name);
 

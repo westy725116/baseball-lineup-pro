@@ -72,6 +72,29 @@ export default function HelpPanel() {
             9th inning (Pro only).
           </Section>
 
+          <Section title="✨ Smart fill (auto-lineup)">
+            Tap <strong>✨ Smart fill</strong> to auto-place players for the
+            current inning based on each kid&apos;s preferences:
+            <ul className="list-disc ml-5 mt-1 space-y-0.5">
+              <li>
+                Players who <strong className="text-emerald-700">prefer</strong>{" "}
+                a position get it first (most specialized players go first so
+                versatile kids can fill gaps).
+              </li>
+              <li>
+                Players who <strong className="text-red-700">avoid</strong> a
+                position are skipped for it entirely.
+              </li>
+              <li>
+                Set preferences in <strong>Roster</strong> → expand a player
+                → tap green chips for preferred, red for avoid.
+              </li>
+            </ul>
+            Run it on each inning, then tweak by drag/tap. Smart fill respects
+            the players already in this game&apos;s roster — load your team
+            roster first.
+          </Section>
+
           <Section title="4. Build the batting order">
             Tap or drag players into the <strong>Batting Order</strong> on the
             right. Click <strong>Auto-fill</strong> to pull everyone fielded
