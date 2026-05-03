@@ -52,7 +52,7 @@ export default async function DebugPage() {
       <header className="mb-6">
         <Link
           href="/admin"
-          className="text-sm text-stone-500 hover:text-stone-800"
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-semibold text-stone-700 bg-white border border-stone-300 rounded-md hover:bg-stone-50 hover:border-stone-400"
         >
           ← Admin
         </Link>

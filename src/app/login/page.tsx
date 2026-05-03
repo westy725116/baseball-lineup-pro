@@ -19,7 +19,7 @@ export default async function LoginPage({
         </Link>
         <Link
           href="/"
-          className="text-sm font-medium text-stone-600 hover:text-stone-900"
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-semibold text-stone-700 bg-white border border-stone-300 rounded-md hover:bg-stone-50 hover:border-stone-400"
         >
           ← Home
         </Link>
