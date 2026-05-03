@@ -140,10 +140,6 @@ export default async function GamesPage({
         </div>
       )}
 
-      {active?.gc_widget_id && (
-        <GcScheduleWidget widgetId={active.gc_widget_id} />
-      )}
-
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-lg font-semibold">
           Games{" "}
@@ -185,6 +181,12 @@ export default async function GamesPage({
           </Link>
         </div>
       ) : null}
+
+      {active?.gc_widget_id && (
+        <div className="mt-6">
+          <GcScheduleWidget widgetId={active.gc_widget_id} />
+        </div>
+      )}
     </div>
   );
 }
