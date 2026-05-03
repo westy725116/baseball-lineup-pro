@@ -62,7 +62,7 @@ export default async function GamesPage({
             className={
               pro
                 ? "px-3 py-1.5 text-sm border border-emerald-300 bg-emerald-50 text-emerald-800 rounded hover:bg-emerald-100"
-                : "px-3 py-1.5 text-sm bg-red-600 hover:bg-red-700 text-white font-semibold rounded"
+                : "px-3 py-1.5 text-sm bg-red-700 hover:bg-red-800 text-white font-semibold rounded"
             }
             title={statusLabel ?? undefined}
           >
@@ -169,7 +169,17 @@ export default async function GamesPage({
       )}
 
       {games && games.length > 0 ? (
-        <GamesByYear games={games} />
+        <GamesByYear
+          games={games.map((g) => {
+            const teamName = g.team_id
+              ? teams.find((t) => t.id === g.team_id)?.name
+              : null;
+            const isHome =
+              !!teamName &&
+              teamName.trim().toLowerCase() === g.home_team.trim().toLowerCase();
+            return { ...g, isHome };
+          })}
+        />
       ) : !error ? (
         <div className="bg-white border border-dashed border-stone-300 rounded-lg p-8 text-center text-stone-500">
           <p className="mb-3">No games yet.</p>
@@ -199,6 +209,7 @@ type GameRow = {
   location: string | null;
   home_score: number | null;
   away_score: number | null;
+  isHome?: boolean;
 };
 
 function GamesByYear({ games }: { games: GameRow[] }) {
@@ -241,12 +252,35 @@ function GamesByYear({ games }: { games: GameRow[] }) {
               {list.map((g) => (
                 <li
                   key={g.id}
-                  className="bg-white border border-stone-200 rounded-lg p-4 flex items-center justify-between hover:shadow-sm"
+                  className={`border border-stone-200 rounded-lg p-4 flex items-center justify-between hover:shadow-sm ${
+                    g.isHome === false ? "bg-stone-100" : "bg-white"
+                  }`}
+                  title={
+                    g.isHome === undefined
+                      ? undefined
+                      : g.isHome
+                        ? "Home game"
+                        : "Away game"
+                  }
                 >
                   <Link href={`/games/${g.id}`} className="flex-1 min-w-0">
-                    <div className="font-semibold">
-                      {g.home_team}{" "}
-                      <span className="text-stone-400">vs</span> {g.away_team}
+                    <div className="font-semibold flex items-center gap-2">
+                      <span>
+                        {g.home_team}{" "}
+                        <span className="text-stone-400">vs</span>{" "}
+                        {g.away_team}
+                      </span>
+                      {g.isHome !== undefined && (
+                        <span
+                          className={`text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded ${
+                            g.isHome
+                              ? "bg-emerald-100 text-emerald-800"
+                              : "bg-stone-200 text-stone-600"
+                          }`}
+                        >
+                          {g.isHome ? "Home" : "Away"}
+                        </span>
+                      )}
                     </div>
                     <div className="text-xs text-stone-500 mt-0.5">
                       {new Date(g.game_date).toLocaleDateString(undefined, {

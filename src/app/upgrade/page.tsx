@@ -140,7 +140,7 @@ export default async function UpgradePage({
               </p>
               <form action={startCheckout}>
                 <input type="hidden" name="plan" value="annual" />
-                <button className="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-2.5 rounded">
+                <button className="w-full bg-red-700 hover:bg-red-800 text-white font-semibold py-2.5 rounded">
                   Choose Annual
                 </button>
               </form>

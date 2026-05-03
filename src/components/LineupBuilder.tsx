@@ -529,21 +529,21 @@ export default function LineupBuilder({
           </span>
           <button
             onClick={() => printWith("field")}
-            className="px-3 py-2 text-sm bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded"
+            className="px-3 py-2 text-sm bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded"
             title="Diamond layout for each inning + batting + pitching"
           >
             🖨 Field
           </button>
           <button
             onClick={() => printWith("grid")}
-            className="px-3 py-2 text-sm bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded"
+            className="px-3 py-2 text-sm bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded"
             title="Excel-style dugout grid you can mark up by hand"
           >
             🖨 Grid
           </button>
           <button
             onClick={() => printWith("both")}
-            className="px-3 py-2 text-sm bg-red-600 hover:bg-red-700 text-white font-semibold rounded"
+            className="px-3 py-2 text-sm bg-stone-900 hover:bg-stone-800 text-white font-semibold rounded"
             title="Both pages — field layout + dugout grid"
           >
             🖨 Both

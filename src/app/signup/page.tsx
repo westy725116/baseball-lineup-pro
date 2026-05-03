@@ -76,7 +76,7 @@ export default async function SignupPage({
               </div>
               <button
                 type="submit"
-                className="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-3 rounded-md text-base shadow-sm"
+                className="w-full bg-red-700 hover:bg-red-800 text-white font-semibold py-3 rounded-md text-base shadow-sm"
               >
                 Create my account →
               </button>

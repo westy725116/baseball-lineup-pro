@@ -26,7 +26,7 @@ export default async function HomePage() {
           </Link>
           <Link
             href="/signup"
-            className="px-4 py-2 text-sm font-semibold bg-red-600 hover:bg-red-700 text-white rounded-md shadow-sm"
+            className="px-4 py-2 text-sm font-semibold bg-red-700 hover:bg-red-800 text-white rounded-md shadow-sm"
           >
             Get started
           </Link>
@@ -51,7 +51,7 @@ export default async function HomePage() {
           <div className="mt-8 flex flex-col sm:flex-row gap-3">
             <Link
               href="/signup"
-              className="inline-flex items-center justify-center px-6 py-3 text-base font-semibold bg-red-600 hover:bg-red-700 text-white rounded-md shadow-sm"
+              className="inline-flex items-center justify-center px-6 py-3 text-base font-semibold bg-red-700 hover:bg-red-800 text-white rounded-md shadow-sm"
             >
               Start free →
             </Link>

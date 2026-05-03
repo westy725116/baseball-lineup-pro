@@ -125,7 +125,7 @@ export default async function GameDetailPage({
           </span>
           <Link
             href="/upgrade"
-            className="px-3 py-1 bg-red-600 hover:bg-red-700 text-white text-xs font-semibold rounded"
+            className="px-3 py-1 bg-red-700 hover:bg-red-800 text-white text-xs font-semibold rounded"
           >
             Unlock all 9 →
           </Link>

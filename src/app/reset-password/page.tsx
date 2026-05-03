@@ -74,7 +74,7 @@ export default async function ResetPasswordPage({
               </div>
               <button
                 type="submit"
-                className="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-2.5 rounded-md text-sm shadow-sm"
+                className="w-full bg-red-700 hover:bg-red-800 text-white font-semibold py-2.5 rounded-md text-sm shadow-sm"
               >
                 Update password
               </button>

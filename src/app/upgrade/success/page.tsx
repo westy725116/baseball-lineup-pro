@@ -75,7 +75,7 @@ export default async function UpgradeSuccessPage({
         </p>
         <Link
           href="/games"
-          className="inline-block px-6 py-2.5 bg-red-600 hover:bg-red-700 text-white font-semibold rounded"
+          className="inline-block px-6 py-2.5 bg-red-700 hover:bg-red-800 text-white font-semibold rounded"
         >
           Back to games →
         </Link>
