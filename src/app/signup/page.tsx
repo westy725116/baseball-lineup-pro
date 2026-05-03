@@ -1,9 +1,9 @@
 import Link from "next/link";
-import { login } from "./actions";
+import { signup } from "../login/actions";
 
 type SearchParams = Promise<{ error?: string; message?: string }>;
 
-export default async function LoginPage({
+export default async function SignupPage({
   searchParams,
 }: {
   searchParams: SearchParams;
@@ -29,10 +29,10 @@ export default async function LoginPage({
         <div className="w-full max-w-sm">
           <div className="bg-white p-7 rounded-2xl shadow-lg border border-stone-200">
             <h1 className="text-2xl font-bold mb-1 text-center">
-              Welcome back
+              Create your free account
             </h1>
             <p className="text-sm text-stone-500 text-center mb-6">
-              Log in or create an account to start.
+              Set up your team in 2 minutes. No credit card needed.
             </p>
 
             {message && (
@@ -46,7 +46,7 @@ export default async function LoginPage({
               </div>
             )}
 
-            <form action={login} className="space-y-4">
+            <form action={signup} className="space-y-4">
               <div>
                 <label className="block text-xs font-semibold text-stone-600 mb-1.5 uppercase tracking-wider">
                   Email
@@ -56,46 +56,40 @@ export default async function LoginPage({
                   type="email"
                   required
                   autoComplete="email"
+                  placeholder="coach@example.com"
                   className="w-full px-3 py-2.5 border border-stone-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
                 />
               </div>
               <div>
                 <label className="block text-xs font-semibold text-stone-600 mb-1.5 uppercase tracking-wider">
-                  Password
+                  Choose a password
                 </label>
                 <input
                   name="password"
                   type="password"
                   required
                   minLength={6}
-                  autoComplete="current-password"
+                  autoComplete="new-password"
+                  placeholder="At least 6 characters"
                   className="w-full px-3 py-2.5 border border-stone-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
                 />
-                <div className="text-right mt-1">
-                  <Link
-                    href="/forgot-password"
-                    className="text-xs font-semibold text-red-600 hover:text-red-700"
-                  >
-                    Forgot password?
-                  </Link>
-                </div>
               </div>
               <button
                 type="submit"
                 className="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-3 rounded-md text-base shadow-sm"
               >
-                Log in
+                Create my account →
               </button>
             </form>
           </div>
 
           <p className="text-center text-sm text-stone-600 mt-5">
-            New here?{" "}
+            Already have an account?{" "}
             <Link
-              href="/signup"
+              href="/login"
               className="font-semibold text-red-600 hover:text-red-700 underline"
             >
-              Create your free account
+              Log in
             </Link>
           </p>
         </div>

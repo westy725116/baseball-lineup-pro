@@ -25,7 +25,7 @@ export default async function HomePage() {
             Log in
           </Link>
           <Link
-            href="/login"
+            href="/signup"
             className="px-4 py-2 text-sm font-semibold bg-red-600 hover:bg-red-700 text-white rounded-md shadow-sm"
           >
             Get started
@@ -50,7 +50,7 @@ export default async function HomePage() {
           </p>
           <div className="mt-8 flex flex-col sm:flex-row gap-3">
             <Link
-              href="/login"
+              href="/signup"
               className="inline-flex items-center justify-center px-6 py-3 text-base font-semibold bg-red-600 hover:bg-red-700 text-white rounded-md shadow-sm"
             >
               Start free →
