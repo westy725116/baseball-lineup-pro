@@ -536,14 +536,14 @@ export default function LineupBuilder({
           </button>
           <button
             onClick={() => printWith("grid")}
-            className="px-3 py-2 text-sm bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded"
+            className="px-3 py-2 text-sm bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded"
             title="Excel-style dugout grid you can mark up by hand"
           >
             🖨 Grid
           </button>
           <button
             onClick={() => printWith("both")}
-            className="px-3 py-2 text-sm bg-stone-900 hover:bg-stone-800 text-white font-semibold rounded"
+            className="px-3 py-2 text-sm bg-red-600 hover:bg-red-700 text-white font-semibold rounded"
             title="Both pages — field layout + dugout grid"
           >
             🖨 Both
@@ -1050,6 +1050,13 @@ export default function LineupBuilder({
 
       </div>
 
+      {/* Print-only view: field comes first so Both mode starts on page 1
+          with the field, then the grid on page 2. */}
+      <div className={styles.fieldPrintGroup}>
+        <PrintInnings data={data} cap={visibleInningCap} />
+        <PrintBattingPitching data={data} />
+      </div>
+
       {/* Dugout grid: visible on screen AND prints (in Grid + Both modes).
           Outside screenOnly so the print stylesheet doesn't hide it. */}
       <section className={`${styles.panel} mt-4 ${styles.gridSection}`}>
@@ -1063,12 +1070,6 @@ export default function LineupBuilder({
           <SummaryTable data={data} cap={visibleInningCap} />
         </div>
       </section>
-
-      {/* Print-only view: mini-fields + batting + pitching (Field + Both modes) */}
-      <div className={styles.fieldPrintGroup}>
-        <PrintInnings data={data} cap={visibleInningCap} />
-        <PrintBattingPitching data={data} />
-      </div>
     </div>
   );
 }
