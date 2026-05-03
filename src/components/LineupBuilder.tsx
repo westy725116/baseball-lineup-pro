@@ -1014,12 +1014,12 @@ export default function LineupBuilder({
           </div>
         </div>
 
-        {/* Player summary spans full width */}
+        {/* Dugout grid: Excel-style printable lineup table */}
         <section className={`${styles.panel} mt-4`}>
           <h2 className={styles.panelTitle}>
-            Player Summary
+            Dugout Grid
             <span className="font-normal normal-case tracking-normal text-stone-400 text-[11px]">
-              positions per inning
+              batting order × positions per inning · prints with notes column
             </span>
           </h2>
           <div className={styles.summaryWrap}>
@@ -1097,7 +1097,7 @@ function SummaryTable({ data, cap }: { data: LineupData; cap: number }) {
   if (data.players.length === 0) {
     return (
       <p className="text-sm text-stone-500 italic p-2">
-        Add players to see the summary.
+        Add players to see the dugout grid.
       </p>
     );
   }
@@ -1108,44 +1108,81 @@ function SummaryTable({ data, cap }: { data: LineupData; cap: number }) {
     if (id) batSpotById.set(id, i + 1);
   });
 
+  // Order rows by batting spot. Players not in the batting order go last.
+  const rows = data.players
+    .map((p) => ({ player: p, batSpot: batSpotById.get(p.id) }))
+    .sort((a, b) => {
+      if (a.batSpot && b.batSpot) return a.batSpot - b.batSpot;
+      if (a.batSpot) return -1;
+      if (b.batSpot) return 1;
+      return 0;
+    });
+
+  // For each row, compute their position per inning (or "EH" if they're a
+  // batter not on the field that inning, or "—" if not in batting order).
+  type Cell = { kind: "pos" | "EH" | "off"; value: string };
+  const cellsByPlayer = new Map<string, Cell[]>();
+  for (const { player, batSpot } of rows) {
+    const cells: Cell[] = [];
+    for (let i = 1; i <= inningCount; i++) {
+      const pos = positionInInning(data, player.id, i);
+      if (pos) cells.push({ kind: "pos", value: pos });
+      else if (batSpot) cells.push({ kind: "EH", value: "EH" });
+      else cells.push({ kind: "off", value: "—" });
+    }
+    cellsByPlayer.set(player.id, cells);
+  }
+
+  // Bottom summary rows
+  const fieldCounts: number[] = [];
+  const ehCounts: number[] = [];
+  for (let i = 0; i < inningCount; i++) {
+    let f = 0;
+    let e = 0;
+    for (const cells of cellsByPlayer.values()) {
+      if (cells[i].kind === "pos") f++;
+      if (cells[i].kind === "EH") e++;
+    }
+    fieldCounts.push(f);
+    ehCounts.push(e);
+  }
+  const totalAssigned = rows.length;
+
   return (
     <table className={styles.summaryTable}>
       <thead>
         <tr>
-          <th className={styles.summaryBat}>Bat</th>
+          <th className={styles.summaryBat}>Bat #</th>
           <th className={styles.summaryPlayer} style={{ textAlign: "left" }}>
             Player
           </th>
-          <th>Innings</th>
           {Array.from({ length: inningCount }, (_, k) => k + 1).map((i) => (
-            <th key={i}>{i}</th>
+            <th key={i}>Inn {i}</th>
           ))}
           <th className={styles.summaryNotes}>Notes / Swap</th>
         </tr>
       </thead>
       <tbody>
-        {data.players.map((p) => {
-          const positionsByInning = Array.from(
-            { length: inningCount },
-            (_, k) => positionInInning(data, p.id, k + 1)
-          );
-          const playedCount = positionsByInning.filter(Boolean).length;
-          const batSpot = batSpotById.get(p.id);
+        {rows.map(({ player, batSpot }) => {
+          const cells = cellsByPlayer.get(player.id) ?? [];
           return (
-            <tr key={p.id}>
+            <tr key={player.id}>
               <td className={styles.summaryBat}>
                 {batSpot ?? <span className="text-stone-300">—</span>}
               </td>
-              <td className={styles.summaryPlayer}>{p.name}</td>
-              <td className={styles.summaryCount}>
-                {playedCount}/{inningCount}
-              </td>
-              {positionsByInning.map((pos, i) => (
+              <td className={styles.summaryPlayer}>{player.name}</td>
+              {cells.map((c, i) => (
                 <td
                   key={i}
-                  className={pos ? styles.summaryPos : styles.summaryBench}
+                  className={
+                    c.kind === "pos"
+                      ? styles.summaryPos
+                      : c.kind === "EH"
+                        ? styles.summaryEH
+                        : styles.summaryBench
+                  }
                 >
-                  {pos ?? "—"}
+                  {c.value}
                 </td>
               ))}
               <td className={styles.summaryNotes}></td>
@@ -1153,6 +1190,48 @@ function SummaryTable({ data, cap }: { data: LineupData; cap: number }) {
           );
         })}
       </tbody>
+      <tfoot>
+        <tr>
+          <td colSpan={2} style={{ textAlign: "right", fontWeight: 700 }}>
+            Field players (need 9):
+          </td>
+          {fieldCounts.map((c, i) => (
+            <td
+              key={i}
+              className={
+                c === 9 ? styles.summaryFootGood : styles.summaryFootBad
+              }
+            >
+              {c}
+            </td>
+          ))}
+          <td></td>
+        </tr>
+        <tr>
+          <td colSpan={2} style={{ textAlign: "right", fontWeight: 700 }}>
+            EH (sitting batters):
+          </td>
+          {ehCounts.map((c, i) => (
+            <td key={i} className={styles.summaryFootEH}>
+              {c}
+            </td>
+          ))}
+          <td></td>
+        </tr>
+        <tr>
+          <td colSpan={2} style={{ textAlign: "right", fontWeight: 700 }}>
+            Total assigned:
+          </td>
+          {Array.from({ length: inningCount }, (_, i) => (
+            <td key={i} className={styles.summaryFoot}>
+              {fieldCounts[i] + ehCounts[i]}
+            </td>
+          ))}
+          <td className={styles.summaryFoot} style={{ fontWeight: 800 }}>
+            {totalAssigned}
+          </td>
+        </tr>
+      </tfoot>
     </table>
   );
 }
