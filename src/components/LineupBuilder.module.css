@@ -437,11 +437,21 @@
   border-left: 1px solid #e5e7eb;
 }
 
+/* The dugout grid section is always rendered (visible on screen).
+   In print, its visibility is controlled by the printMode wrapper. */
+.gridSection { /* visible on screen by default */ }
+.fieldPrintGroup { /* contains print-only innings + batting + pitching */ }
+
 /* Print-specific tracking-sheet styling: taller rows + visible cell borders
-   so coaches can write swaps/notes by hand. The summary starts on its own page
-   so coaches can pull just the tracking grid into the dugout. */
+   so coaches can write swaps/notes by hand. */
 @media print {
-  .summaryWrap { page-break-before: always; }
+  /* Both mode: field prints first, then grid on a new page */
+  .printModeBoth .gridSection { page-break-before: always; }
+  /* Field-only: hide the grid section */
+  .printModeField .gridSection { display: none !important; }
+  /* Grid-only: hide the field group (mini-fields + batting + pitching) */
+  .printModeGrid .fieldPrintGroup { display: none !important; }
+
   .summaryTable th, .summaryTable td {
     padding: 8px 6px;
     border: 1px solid #cbd5e1 !important;
@@ -450,6 +460,8 @@
   .summaryTable td.summaryNotes { height: 36px; min-height: 36px; }
   .summaryTable td.summaryPos { background: #f3f4f6 !important; color: #000 !important; }
   .summaryTable td.summaryBench { color: #d4d4d8 !important; }
+  .summaryTable td.summaryEH { background: #fef9c3 !important; color: #000 !important; }
+  .summaryTable td.summaryBat { background: #1e3a8a !important; color: #fff !important; }
 }
 
 .hint { color: #6b7280; font-size: 12px; margin-top: 8px; }

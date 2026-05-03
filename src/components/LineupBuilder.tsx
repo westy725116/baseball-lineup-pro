@@ -46,6 +46,14 @@ export default function LineupBuilder({
   // page (roster at top → field below) is essentially unusable.
   const [selectedPlayerId, setSelectedPlayerId] = useState<string | null>(null);
 
+  // Which sections to include when printing. Default = both.
+  const [printMode, setPrintMode] = useState<"both" | "field" | "grid">("both");
+  const printWith = (mode: "both" | "field" | "grid") => {
+    setPrintMode(mode);
+    // Let React re-render with the right class, then trigger print.
+    setTimeout(() => window.print(), 60);
+  };
+
   // Use the spread-out positions everywhere — they prevent infielder
   // circles from overlapping even when the field column is narrow.
   const fieldPositions = POSITIONS_PRINT;
@@ -489,7 +497,15 @@ export default function LineupBuilder({
   const lineup = currentLineup();
 
   return (
-    <>
+    <div
+      className={
+        printMode === "field"
+          ? styles.printModeField
+          : printMode === "grid"
+            ? styles.printModeGrid
+            : styles.printModeBoth
+      }
+    >
       <div className={styles.screenOnly}>
         {selectedPlayer && (
           <div className="sticky top-0 z-30 mb-3 px-3 py-2 bg-blue-600 text-white rounded shadow-lg flex items-center justify-between gap-3">
@@ -507,12 +523,30 @@ export default function LineupBuilder({
           </div>
         )}
 
-        <div className="flex items-center gap-3 mb-3">
+        <div className="flex items-center gap-2 mb-3 flex-wrap">
+          <span className="text-xs text-stone-500 font-semibold uppercase tracking-wider">
+            Print:
+          </span>
           <button
-            onClick={() => window.print()}
+            onClick={() => printWith("field")}
             className="px-3 py-2 text-sm bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded"
+            title="Diamond layout for each inning + batting + pitching"
           >
-            🖨 Print
+            🖨 Field
+          </button>
+          <button
+            onClick={() => printWith("grid")}
+            className="px-3 py-2 text-sm bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded"
+            title="Excel-style dugout grid you can mark up by hand"
+          >
+            🖨 Grid
+          </button>
+          <button
+            onClick={() => printWith("both")}
+            className="px-3 py-2 text-sm bg-stone-900 hover:bg-stone-800 text-white font-semibold rounded"
+            title="Both pages — field layout + dugout grid"
+          >
+            🖨 Both
           </button>
           <span
             className={
@@ -1014,24 +1048,28 @@ export default function LineupBuilder({
           </div>
         </div>
 
-        {/* Dugout grid: Excel-style printable lineup table */}
-        <section className={`${styles.panel} mt-4`}>
-          <h2 className={styles.panelTitle}>
-            Dugout Grid
-            <span className="font-normal normal-case tracking-normal text-stone-400 text-[11px]">
-              batting order × positions per inning · prints with notes column
-            </span>
-          </h2>
-          <div className={styles.summaryWrap}>
-            <SummaryTable data={data} cap={visibleInningCap} />
-          </div>
-        </section>
       </div>
 
-      {/* Print-only view: mini-fields + batting + pitching */}
-      <PrintInnings data={data} cap={visibleInningCap} />
-      <PrintBattingPitching data={data} />
-    </>
+      {/* Dugout grid: visible on screen AND prints (in Grid + Both modes).
+          Outside screenOnly so the print stylesheet doesn't hide it. */}
+      <section className={`${styles.panel} mt-4 ${styles.gridSection}`}>
+        <h2 className={styles.panelTitle}>
+          Dugout Grid
+          <span className="font-normal normal-case tracking-normal text-stone-400 text-[11px]">
+            batting order × positions per inning · prints with notes column
+          </span>
+        </h2>
+        <div className={styles.summaryWrap}>
+          <SummaryTable data={data} cap={visibleInningCap} />
+        </div>
+      </section>
+
+      {/* Print-only view: mini-fields + batting + pitching (Field + Both modes) */}
+      <div className={styles.fieldPrintGroup}>
+        <PrintInnings data={data} cap={visibleInningCap} />
+        <PrintBattingPitching data={data} />
+      </div>
+    </div>
   );
 }
 
