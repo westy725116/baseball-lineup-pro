@@ -37,6 +37,8 @@ export async function updateSession(request: NextRequest) {
     path.startsWith("/forgot-password") ||
     path.startsWith("/auth") ||
     path.startsWith("/share") ||
+    path.startsWith("/terms") ||
+    path.startsWith("/privacy") ||
     path.startsWith("/api/stripe/webhook");
 
   if (!user && !isPublic) {

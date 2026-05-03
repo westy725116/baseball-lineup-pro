@@ -80,6 +80,20 @@ export default async function SignupPage({
               >
                 Create my account →
               </button>
+              <p className="text-xs text-stone-500 text-center pt-1">
+                By creating an account you agree to our{" "}
+                <Link href="/terms" className="underline hover:text-stone-700">
+                  Terms
+                </Link>{" "}
+                and{" "}
+                <Link
+                  href="/privacy"
+                  className="underline hover:text-stone-700"
+                >
+                  Privacy Policy
+                </Link>
+                .
+              </p>
             </form>
           </div>
 

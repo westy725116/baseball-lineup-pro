@@ -262,9 +262,22 @@ export default async function HomePage() {
 
       {/* Footer */}
       <footer className="border-t border-stone-200 py-8">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 flex items-center justify-between text-sm text-stone-500">
-          <div>⚾ Lineup Pro</div>
-          <div>© {new Date().getFullYear()}</div>
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 flex items-center justify-between text-sm text-stone-500 flex-wrap gap-3">
+          <div>⚾ Lineup Pro · © {new Date().getFullYear()}</div>
+          <div className="flex items-center gap-4">
+            <Link href="/terms" className="hover:text-stone-800">
+              Terms
+            </Link>
+            <Link href="/privacy" className="hover:text-stone-800">
+              Privacy
+            </Link>
+            <a
+              href="mailto:support@getlineuppro.com"
+              className="hover:text-stone-800"
+            >
+              Contact
+            </a>
+          </div>
         </div>
       </footer>
     </div>
