@@ -51,7 +51,7 @@ export default async function SharedGamePage({
     <div className="min-h-screen bg-stone-50">
       <header className="bg-white border-b border-stone-200">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
-          <Logo height={40} />
+          <Logo height={56} />
           <a
             href="/"
             className="text-xs text-stone-500 hover:text-stone-800"

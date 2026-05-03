@@ -12,7 +12,7 @@ export default function TermsPage() {
     <div className="min-h-screen bg-stone-50">
       <nav className="max-w-3xl mx-auto px-4 sm:px-6 py-5 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-2">
-          <Logo height={44} />
+          <Logo height={64} />
         </Link>
         <Link
           href="/"

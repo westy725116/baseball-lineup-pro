@@ -14,7 +14,7 @@ export default async function HomePage() {
     <div className="min-h-screen bg-gradient-to-b from-stone-50 to-stone-100">
       {/* Top nav */}
       <nav className="max-w-6xl mx-auto px-4 sm:px-6 py-5 flex items-center justify-between">
-        <Logo height={48} />
+        <Logo height={72} />
         <div className="flex items-center gap-2">
           <Link
             href="/login"
@@ -262,7 +262,7 @@ export default async function HomePage() {
       <footer className="border-t border-stone-200 py-8">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 flex items-center justify-between text-sm text-stone-500 flex-wrap gap-3">
           <div className="flex items-center gap-3">
-            <Logo height={28} />
+            <Logo height={36} />
             <span>· © {new Date().getFullYear()}</span>
           </div>
           <div className="flex items-center gap-4">

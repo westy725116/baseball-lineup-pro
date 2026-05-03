@@ -24,7 +24,7 @@ export default async function ResetPasswordPage({
     <div className="min-h-screen bg-gradient-to-b from-stone-50 to-stone-100 flex flex-col">
       <nav className="max-w-6xl w-full mx-auto px-4 sm:px-6 py-5 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-2">
-          <Logo height={44} />
+          <Logo height={64} />
         </Link>
       </nav>
 
