@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Logo from "@/components/Logo";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { syncSubscriptionFromStripe, isPro } from "@/lib/subscription";
@@ -30,8 +31,7 @@ export default async function UpgradePage({
     <div className="min-h-screen bg-gradient-to-b from-stone-50 to-stone-100">
       <nav className="max-w-6xl mx-auto px-4 sm:px-6 py-5 flex items-center justify-between">
         <Link href="/games" className="flex items-center gap-2">
-          <span className="text-2xl">⚾</span>
-          <span className="font-bold text-lg tracking-tight">Lineup Pro</span>
+          <Logo height={44} />
         </Link>
         <Link
           href="/games"

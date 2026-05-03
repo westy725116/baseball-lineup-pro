@@ -7,6 +7,7 @@ import { syncSubscriptionFromStripe, isPro, subStatusLabel } from "@/lib/subscri
 import { isAdmin } from "@/lib/admin";
 import { listTeamsAndEnsureDefault, pickActiveTeam } from "@/lib/teams";
 import GcScheduleWidget from "@/components/GcScheduleWidget";
+import Logo from "@/components/Logo";
 
 type SearchParams = Promise<{ team?: string }>;
 
@@ -45,7 +46,9 @@ export default async function GamesPage({
   return (
     <div className="max-w-3xl mx-auto p-4 sm:p-6 w-full">
       <header className="flex items-center justify-between mb-6 flex-wrap gap-2">
-        <h1 className="text-2xl font-bold">⚾ Lineup Pro</h1>
+        <Link href="/games">
+          <Logo height={44} />
+        </Link>
         <div className="flex items-center gap-2 text-sm">
           <span className="text-stone-500 hidden sm:inline">{user.email}</span>
           {admin && (

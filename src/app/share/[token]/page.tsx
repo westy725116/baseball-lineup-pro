@@ -7,6 +7,7 @@ import {
   type LineupData,
 } from "@/lib/lineup";
 import styles from "@/components/LineupBuilder.module.css";
+import Logo from "@/components/Logo";
 import { addCommentByToken } from "./actions";
 
 export const dynamic = "force-dynamic";
@@ -50,10 +51,7 @@ export default async function SharedGamePage({
     <div className="min-h-screen bg-stone-50">
       <header className="bg-white border-b border-stone-200">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span className="text-2xl">⚾</span>
-            <span className="font-bold tracking-tight">Lineup Pro</span>
-          </div>
+          <Logo height={40} />
           <a
             href="/"
             className="text-xs text-stone-500 hover:text-stone-800"
@@ -278,7 +276,13 @@ export default async function SharedGamePage({
         </section>
 
         <footer className="text-center text-xs text-stone-400 pb-8">
-          ⚾ Lineup Pro · <a href="/" className="hover:text-stone-600 underline">getlineuppro.com</a>
+          <span className="inline-flex items-center gap-2 align-middle">
+            <Logo height={20} />
+            <span>·</span>
+            <a href="/" className="hover:text-stone-600 underline">
+              getlineuppro.com
+            </a>
+          </span>
         </footer>
       </main>
     </div>

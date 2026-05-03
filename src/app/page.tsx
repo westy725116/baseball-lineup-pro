@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import Logo from "@/components/Logo";
 
 export default async function HomePage() {
   const supabase = await createClient();
@@ -13,10 +14,7 @@ export default async function HomePage() {
     <div className="min-h-screen bg-gradient-to-b from-stone-50 to-stone-100">
       {/* Top nav */}
       <nav className="max-w-6xl mx-auto px-4 sm:px-6 py-5 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <span className="text-2xl">⚾</span>
-          <span className="font-bold text-lg tracking-tight">Lineup Pro</span>
-        </div>
+        <Logo height={48} />
         <div className="flex items-center gap-2">
           <Link
             href="/login"
@@ -263,7 +261,10 @@ export default async function HomePage() {
       {/* Footer */}
       <footer className="border-t border-stone-200 py-8">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 flex items-center justify-between text-sm text-stone-500 flex-wrap gap-3">
-          <div>⚾ Lineup Pro · © {new Date().getFullYear()}</div>
+          <div className="flex items-center gap-3">
+            <Logo height={28} />
+            <span>· © {new Date().getFullYear()}</span>
+          </div>
           <div className="flex items-center gap-4">
             <Link href="/terms" className="hover:text-stone-800">
               Terms

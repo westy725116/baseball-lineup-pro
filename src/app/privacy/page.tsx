@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Logo from "@/components/Logo";
 
 export const metadata = {
   title: "Privacy Policy · Lineup Pro",
@@ -11,8 +12,7 @@ export default function PrivacyPage() {
     <div className="min-h-screen bg-stone-50">
       <nav className="max-w-3xl mx-auto px-4 sm:px-6 py-5 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-2">
-          <span className="text-2xl">⚾</span>
-          <span className="font-bold text-lg tracking-tight">Lineup Pro</span>
+          <Logo height={44} />
         </Link>
         <Link
           href="/"

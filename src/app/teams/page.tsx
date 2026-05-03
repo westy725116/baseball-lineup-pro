@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Logo from "@/components/Logo";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { listTeamsAndEnsureDefault } from "@/lib/teams";
