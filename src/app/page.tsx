@@ -1,7 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import Logo from "@/components/Logo";
+import Logo, { FullLogo } from "@/components/Logo";
 
 export default async function HomePage() {
   const supabase = await createClient();
@@ -213,8 +213,13 @@ export default async function HomePage() {
         </div>
       </section>
 
+      {/* Brand banner above pricing */}
+      <section className="max-w-4xl mx-auto px-4 sm:px-6 pt-16 pb-4 border-t border-stone-200 flex justify-center">
+        <FullLogo height={220} />
+      </section>
+
       {/* Pricing teaser */}
-      <section className="max-w-4xl mx-auto px-4 sm:px-6 py-16 border-t border-stone-200">
+      <section className="max-w-4xl mx-auto px-4 sm:px-6 pt-4 pb-16">
         <h2 className="text-3xl font-bold text-center mb-3">Simple pricing</h2>
         <p className="text-center text-stone-600 mb-10">
           Try it free. Upgrade when you&apos;re ready to save your work.
