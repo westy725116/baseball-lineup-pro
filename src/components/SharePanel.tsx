@@ -50,7 +50,16 @@ export default function SharePanel({
       </button>
 
       {open && (
-        <div className="basis-full mt-3 p-4 bg-white border border-stone-200 rounded-lg shadow-sm w-full max-w-2xl">
+        <div className="basis-full mt-3 p-4 pr-10 bg-white border border-stone-200 rounded-lg shadow-sm w-full max-w-2xl relative">
+          <button
+            type="button"
+            onClick={() => setOpen(false)}
+            aria-label="Close share panel"
+            title="Close"
+            className="absolute top-2 right-2 w-8 h-8 flex items-center justify-center rounded-full text-stone-500 hover:text-stone-900 hover:bg-stone-100 text-xl leading-none"
+          >
+            ×
+          </button>
           {!shareEnabled ? (
             <form action={enableSharing}>
               <input type="hidden" name="game_id" value={gameId} />
