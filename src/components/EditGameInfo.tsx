@@ -28,7 +28,7 @@ export default function EditGameInfo({
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="px-3 py-2 text-sm font-semibold text-stone-800 border border-stone-300 bg-white hover:bg-stone-50 rounded"
+        className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-md min-w-[120px] justify-center"
         title="Edit teams, date, location"
       >
         ✎ Edit info
@@ -40,7 +40,7 @@ export default function EditGameInfo({
             await updateGameInfo(fd);
             setOpen(false);
           }}
-          className="mt-3 p-4 bg-white border border-stone-200 rounded-lg shadow-sm w-full max-w-2xl space-y-3"
+          className="basis-full mt-3 p-4 bg-white border border-stone-200 rounded-lg shadow-sm w-full max-w-2xl space-y-3"
         >
           <input type="hidden" name="id" value={game.id} />
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">

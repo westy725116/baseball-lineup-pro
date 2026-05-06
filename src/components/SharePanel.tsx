@@ -29,7 +29,7 @@ export default function SharePanel({
     return (
       <a
         href="/upgrade"
-        className="inline-flex items-center gap-1 px-3 py-2 text-sm font-semibold border border-red-200 text-red-700 bg-red-50 rounded hover:bg-red-100"
+        className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-semibold text-white bg-stone-500 hover:bg-stone-600 rounded-md min-w-[120px] justify-center"
         title="Sharing is a Pro feature"
       >
         🔒 Share
@@ -44,13 +44,13 @@ export default function SharePanel({
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="inline-flex items-center gap-1 px-3 py-2 text-sm font-semibold text-stone-800 border border-stone-300 bg-white hover:bg-stone-50 rounded"
+        className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-semibold text-white bg-stone-900 hover:bg-black rounded-md min-w-[120px] justify-center"
       >
         🔗 Share {shareEnabled ? "(on)" : ""}
       </button>
 
       {open && (
-        <div className="mt-3 p-4 bg-white border border-stone-200 rounded-lg shadow-sm w-full max-w-2xl">
+        <div className="basis-full mt-3 p-4 bg-white border border-stone-200 rounded-lg shadow-sm w-full max-w-2xl">
           {!shareEnabled ? (
             <form action={enableSharing}>
               <input type="hidden" name="game_id" value={gameId} />

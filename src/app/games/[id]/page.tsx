@@ -55,7 +55,7 @@ export default async function GameDetailPage({
       <header className="mb-5 print:hidden">
         <Link
           href="/games"
-          className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-semibold text-stone-700 bg-white border border-stone-300 rounded-md hover:bg-stone-50 hover:border-stone-400"
+          className="inline-flex items-center gap-1.5 px-3 py-2 text-sm font-semibold text-white bg-stone-900 hover:bg-black rounded-md"
         >
           ← Back to games
         </Link>
