@@ -17,31 +17,43 @@ type Game = {
 export default function EditGameInfo({
   game,
   teams,
+  open: openProp,
+  onOpenChange,
+  slot,
 }: {
   game: Game;
   teams: Team[];
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  slot?: "button" | "popover";
 }) {
-  const [open, setOpen] = useState(false);
+  const [internalOpen, setInternalOpen] = useState(false);
+  const isControlled = openProp !== undefined;
+  const open = isControlled ? openProp : internalOpen;
+  const setOpen = (v: boolean) => {
+    if (isControlled) onOpenChange?.(v);
+    else setInternalOpen(v);
+  };
 
-  return (
-    <>
-      <button
-        type="button"
-        onClick={() => setOpen((v) => !v)}
-        className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-md min-w-[120px] justify-center"
-        title="Edit teams, date, location"
-      >
-        ✎ Edit info
-      </button>
+  const button = (
+    <button
+      type="button"
+      onClick={() => setOpen(!open)}
+      className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-md min-w-[120px] justify-center"
+      title="Edit teams, date, location"
+    >
+      ✎ Edit info
+    </button>
+  );
 
-      {open && (
-        <form
-          action={async (fd) => {
-            await updateGameInfo(fd);
-            setOpen(false);
-          }}
-          className="basis-full mt-3 p-4 bg-white border border-stone-200 rounded-lg shadow-sm w-full max-w-2xl space-y-3"
-        >
+  const popover = open && (
+    <form
+      action={async (fd) => {
+        await updateGameInfo(fd);
+        setOpen(false);
+      }}
+      className="w-full max-w-md p-4 bg-stone-50 border border-stone-200 rounded-lg shadow-sm space-y-3"
+    >
           <input type="hidden" name="id" value={game.id} />
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
@@ -138,7 +150,14 @@ export default function EditGameInfo({
             </button>
           </div>
         </form>
-      )}
+  );
+
+  if (slot === "button") return button;
+  if (slot === "popover") return popover || null;
+  return (
+    <>
+      {button}
+      {popover}
     </>
   );
 }

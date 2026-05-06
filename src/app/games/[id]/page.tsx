@@ -3,8 +3,7 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { headers } from "next/headers";
 import LineupBuilder from "@/components/LineupBuilder";
-import SharePanel from "@/components/SharePanel";
-import EditGameInfo from "@/components/EditGameInfo";
+import GameHeaderActions from "@/components/GameHeaderActions";
 import HelpPanel from "@/components/HelpPanel";
 import GameNotes from "@/components/GameNotes";
 import { getSubscription, isPro, FREE_INNINGS } from "@/lib/subscription";
@@ -75,31 +74,26 @@ export default async function GameDetailPage({
               {game.location ? ` • ${game.location}` : ""}
             </div>
           </div>
-          <div className="flex flex-wrap gap-2">
-            <EditGameInfo
-              game={{
-                id: game.id,
-                home_team: game.home_team,
-                away_team: game.away_team,
-                location: game.location ?? null,
-                game_date: game.game_date,
-                team_id: game.team_id ?? null,
-                is_home: game.is_home ?? true,
-              }}
-              teams={teams.map((t) => ({
-                id: t.id,
-                name: t.name,
-                season_year: t.season_year,
-              }))}
-            />
-            <SharePanel
-              gameId={game.id}
-              shareToken={game.share_token ?? null}
-              shareEnabled={!!game.share_enabled}
-              isPro={pro}
-              origin={origin}
-            />
-          </div>
+          <GameHeaderActions
+            game={{
+              id: game.id,
+              home_team: game.home_team,
+              away_team: game.away_team,
+              location: game.location ?? null,
+              game_date: game.game_date,
+              team_id: game.team_id ?? null,
+              is_home: game.is_home ?? true,
+            }}
+            teams={teams.map((t) => ({
+              id: t.id,
+              name: t.name,
+              season_year: t.season_year,
+            }))}
+            shareToken={game.share_token ?? null}
+            shareEnabled={!!game.share_enabled}
+            isPro={pro}
+            origin={origin}
+          />
         </div>
       </header>
 
