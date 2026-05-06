@@ -833,16 +833,18 @@ export default function LineupBuilder({
                         {!hasPhoto && <PlayerSilhouette />}
                         <div className={styles.posPill}>{pos.id}</div>
                         <div className={styles.whoPill}>{player.name}</div>
-                        <div
-                          className="clear"
+                        <button
+                          type="button"
+                          className={styles.clear}
                           onClick={(e) => {
                             e.stopPropagation();
                             clearSlot(pos.id);
                           }}
+                          aria-label={`Remove player from ${pos.id}`}
                           title="Remove from position"
                         >
                           ×
-                        </div>
+                        </button>
                       </>
                     ) : (
                       <>

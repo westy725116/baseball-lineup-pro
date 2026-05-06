@@ -231,8 +231,6 @@
     font-size: 8px;
   }
   .field .slot .pos { font-size: 10px; }
-  .field .slot .who { font-size: 9px; }
-  .field .slot .clear { width: 12px; height: 12px; line-height: 10px; font-size: 9px; }
 }
 .slot:hover { background: rgba(255,255,255,.3); }
 .slotOver { background: rgba(255, 235, 59, .35) !important; border-color: #ffeb3b; transform: translate(-50%, -50%) scale(1.08); }
@@ -326,18 +324,40 @@
 
 .slot .clear {
   position: absolute;
-  top: -4px;
-  right: -4px;
-  width: 18px;
-  height: 18px;
+  top: -6px;
+  right: -6px;
+  width: 22px;
+  height: 22px;
+  padding: 0;
   border-radius: 50%;
-  background: #b91c1c;
+  background: #dc2626;
   color: #fff;
-  font-size: 12px;
-  line-height: 16px;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1;
   text-align: center;
   cursor: pointer;
   border: 2px solid #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, .35);
+  z-index: 4;
+  transition: transform .12s ease, background .12s ease, box-shadow .12s ease;
+}
+.slot .clear:hover,
+.slot .clear:focus-visible {
+  background: #991b1b;
+  transform: scale(1.18);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, .5);
+  outline: none;
+}
+.slot .clear:active { transform: scale(1.05); }
+@media (max-width: 640px) {
+  .slot .clear {
+    width: 24px;
+    height: 24px;
+    font-size: 16px;
+    top: -7px;
+    right: -7px;
+  }
 }
 
 /* ---------- Batting order ---------- */
