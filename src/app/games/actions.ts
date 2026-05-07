@@ -80,10 +80,16 @@ export async function copyGame(formData: FormData) {
   if (created) redirect(`/games/${created.id}`);
 }
 
-// Edits the metadata on the detail page (teams, date, location, team, home/away).
+// Edits the metadata on the detail page (teams, date, location, team, home/away, score).
 export async function updateGameInfo(formData: FormData) {
   const id = formData.get("id") as string;
   if (!id) return;
+  const parseScore = (raw: FormDataEntryValue | null): number | null => {
+    const s = ((raw as string) ?? "").trim();
+    if (s === "") return null;
+    const n = Number(s);
+    return Number.isFinite(n) && n >= 0 ? Math.floor(n) : null;
+  };
   const supabase = await createClient();
   await supabase
     .from("games")
@@ -94,6 +100,8 @@ export async function updateGameInfo(formData: FormData) {
       game_date: formData.get("game_date") as string,
       team_id: ((formData.get("team_id") as string) || "").trim() || null,
       is_home: formData.get("is_home") === "on",
+      home_score: parseScore(formData.get("home_score")),
+      away_score: parseScore(formData.get("away_score")),
     })
     .eq("id", id);
   revalidatePath(`/games/${id}`);

@@ -13,6 +13,8 @@ type Game = {
   game_date: string;
   team_id: string | null;
   is_home: boolean;
+  home_score: number | null;
+  away_score: number | null;
 };
 
 type Props = {

@@ -73,6 +73,13 @@ export default async function GameDetailPage({
               })}
               {game.location ? ` • ${game.location}` : ""}
             </div>
+            {game.home_score != null && game.away_score != null && (
+              <GameResult
+                isHome={game.is_home ?? true}
+                homeScore={game.home_score}
+                awayScore={game.away_score}
+              />
+            )}
           </div>
           <GameHeaderActions
             game={{
@@ -83,6 +90,8 @@ export default async function GameDetailPage({
               game_date: game.game_date,
               team_id: game.team_id ?? null,
               is_home: game.is_home ?? true,
+              home_score: game.home_score ?? null,
+              away_score: game.away_score ?? null,
             }}
             teams={teams.map((t) => ({
               id: t.id,
@@ -184,6 +193,46 @@ export default async function GameDetailPage({
           </ul>
         </section>
       )}
+    </div>
+  );
+}
+
+function GameResult({
+  isHome,
+  homeScore,
+  awayScore,
+}: {
+  isHome: boolean;
+  homeScore: number;
+  awayScore: number;
+}) {
+  const myScore = isHome ? homeScore : awayScore;
+  const oppScore = isHome ? awayScore : homeScore;
+  let label: "W" | "L" | "T";
+  let cls: string;
+  if (myScore > oppScore) {
+    label = "W";
+    cls = "bg-emerald-100 text-emerald-800 border-emerald-300";
+  } else if (myScore < oppScore) {
+    label = "L";
+    cls = "bg-red-100 text-red-800 border-red-300";
+  } else {
+    label = "T";
+    cls = "bg-stone-200 text-stone-700 border-stone-300";
+  }
+  return (
+    <div className="mt-2 inline-flex items-center gap-2">
+      <span
+        className={`inline-flex items-center justify-center w-7 h-7 rounded-full border text-sm font-bold ${cls}`}
+        aria-label={
+          label === "W" ? "Win" : label === "L" ? "Loss" : "Tie"
+        }
+      >
+        {label}
+      </span>
+      <span className="text-sm font-semibold text-stone-700">
+        {myScore}–{oppScore}
+      </span>
     </div>
   );
 }

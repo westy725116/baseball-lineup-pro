@@ -12,6 +12,8 @@ type Game = {
   game_date: string;
   team_id: string | null;
   is_home: boolean;
+  home_score: number | null;
+  away_score: number | null;
 };
 
 export default function EditGameInfo({
@@ -133,6 +135,42 @@ export default function EditGameInfo({
                 We&apos;re the home team for this game
               </span>
             </label>
+            <div className="sm:col-span-2">
+              <label className="block text-xs font-semibold text-stone-600 mb-1 uppercase tracking-wider">
+                Final score{" "}
+                <span className="text-stone-400 normal-case font-normal tracking-normal">
+                  (leave blank if game hasn&apos;t finished)
+                </span>
+              </label>
+              <div className="flex items-center gap-2">
+                <input
+                  name="home_score"
+                  type="number"
+                  min={0}
+                  max={99}
+                  inputMode="numeric"
+                  defaultValue={game.home_score ?? ""}
+                  placeholder={game.home_team}
+                  aria-label={`${game.home_team} score`}
+                  className="w-20 px-3 py-2 border border-stone-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+                <span className="text-stone-400 font-semibold">–</span>
+                <input
+                  name="away_score"
+                  type="number"
+                  min={0}
+                  max={99}
+                  inputMode="numeric"
+                  defaultValue={game.away_score ?? ""}
+                  placeholder={game.away_team}
+                  aria-label={`${game.away_team} score`}
+                  className="w-20 px-3 py-2 border border-stone-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+                <span className="text-xs text-stone-500 ml-1">
+                  ({game.home_team} – {game.away_team})
+                </span>
+              </div>
+            </div>
           </div>
           <div className="flex gap-2 pt-1">
             <button
